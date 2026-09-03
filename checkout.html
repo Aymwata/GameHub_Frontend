@@ -1,0 +1,26 @@
+<main class="contenedor-checkout">
+    <section>
+        <h1>Finalizar Compra</h1>
+        <form id = "form-checkout" novalidate>
+            <article class = "grupo-form">
+                <label for="nombre">Nombre completo</label>
+                <input type="text" name="nombre" id="nombre" autocomplete="name" required>
+                <span class ="error" id="error-nombre" style="display: none;">Requerido</span>
+            </article>
+            <article class = "group-form">
+                <label for="email">Correo electrónico</label>
+                <input type ="email"  id="correo" autocomplete="email" required>
+                <span class ="error" id="error-correo" style="display: none;">Formato Invalido</span>
+            </article>
+
+            <article class = "group-form">
+                <label for="Telefono">Telefono de Contacto</label>
+                <input type ="tel"  id="numero" autocomplete="tel" required>
+                <small>Ejemplo: 940350943</small>
+                <span class ="error" id="error-telefono" style="display: none;">Debe tener almenos 9 numeros</span>
+            </article>
+        </form>
+    </section>    
+</main>
+    
+
