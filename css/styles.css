@@ -46,7 +46,7 @@ footer{
     height: 40px;
 }
 
-.header-buscador input {
+form input {
     width: 100%;
     padding: 10px 10px;
     border: none;
@@ -257,3 +257,20 @@ main {
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
+.pagination .page-link {
+    color: var(--color-primario);
+}
+
+/* Color de la página activa */
+.pagination .page-item.active .page-link {
+    background-color: var(--color-primario);
+    border-color: var(--color-primario);
+    color: var(--color-superficie);
+}
+
+/* Color al pasar el mouse (hover) */
+.pagination .page-link:hover {
+    background-color: var(--color-acento);
+    color: var(--color-superficie);
+    border-color: var(--color-acento);
+}

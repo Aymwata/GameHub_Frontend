@@ -132,7 +132,18 @@ if (grillcatalogo) {
     function ordenarProductos(arreglo, criterio) {
         let arregloOrdenado = [...arreglo]
 
-        
+        if (criterio === 'precio-asc') {
+            arregloOrdenado.sort((a, b) => a.precio - b.precio);
+        } else if (criterio === 'precio-desc') {
+            arregloOrdenado.sort((a, b) => b.precio - a.precio);
+        } else if (criterio === 'nombre-asc') {
+            arregloOrdenado.sort((a, b) => a.nombre.localeCompare(b.nombre));
+        } else if (criterio === 'nombre-desc') {
+            arregloOrdenado.sort((a, b) => b.nombre.localeCompare(a.nombre));
+        } else {
+            arregloOrdenado.sort((a, b) => a.id - b.id);
+        }
+        return arregloOrdenado;
 
     }
 
@@ -145,14 +156,23 @@ if (grillcatalogo) {
             const precioMin = parseInt(document.getElementById('precio-min').value) || 0;
             const precioMax = parseInt(document.getElementById('precio-max').value) || Infinity;
 
-            const productosFiltrados = baseDatosProductos.filter(producto => {
+            productosMostrados = baseDatosProductos.filter(producto => {
                 const cumpleCategoria = categoriaSeleccionada.length === 0 || categoriaSeleccionada.includes(producto.categoria);
                 const cumpleMarca = marcaSeleccionada.length === 0 || marcaSeleccionada.includes(producto.marca);
                 const cumplePrecio = producto.precio >= precioMin && producto.precio <= precioMax;
-            
                 return cumpleCategoria && cumpleMarca && cumplePrecio;
             });
-            mostrarCatalogo(productosFiltrados);
+
+            const productosListos = ordenarProductos(productosMostrados, selectOrdenar.value);
+            mostrarCatalogo(productosListos);
+        });
+    }
+
+    if (selectOrdenar) {
+        selectOrdenar.addEventListener('change', () => {
+            const productosListos = ordenarProductos(productosMostrados, selectOrdenar.value);
+            mostrarCatalogo(productosListos);
         });
     }
 }
+
