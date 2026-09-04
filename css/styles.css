@@ -20,6 +20,10 @@ header {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+footer{
+  margin-top: 40px;
+}
+
 .header-container {
     display: flex;
     justify-content: center;
@@ -229,6 +233,27 @@ main {
   color: var(--color-primario);
 }
 
+.tarjeta-filtros {
+  border: none;
+  background-color: var(--color-superficie);
+  box-shadow: 0 4px 5px rgba(0,0,0,0.1);
+  border-radius: var(--radio-borde);
+}
 
+/* =========================================
+   CATÁLOGO - INDICADORES DE STOCK
+========================================= */
+.badge-stock-ok {
+    background-color: var(--color-acento);
+    color: #FFFFFF;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
 
+.badge-stock-out {
+    background-color: #dc3545; /* Rojo estándar para alertas */
+    color: #FFFFFF;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
 
