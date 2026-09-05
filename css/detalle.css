@@ -1,0 +1,56 @@
+.galeria-img {
+    width: 100%;
+    border-radius: var(--radio-borde);
+    object-fit: contain;
+    border: 1px solid #ddd;
+    background-color: var(--color-superficie);
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.marca-texto {
+    color: #6c757d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.bloque-precios {
+    background-color: var(--color-superficie);
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: var(--radio-borde);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.precio-normal {
+    text-decoration: line-through;
+    color: var(--color-error);
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.precio-oferta {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--color-primario);
+    margin: 0;
+}
+
+.btn-comprar-detalle {
+    background-color: var(--color-primario);
+    color: var(--color-superficie);
+    border: none;
+    border-radius: var(--radio-borde);
+    padding: 12px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-comprar-detalle:hover {
+    background-color: var(--color-acento);
+    color: var(--color-superficie);
+}
