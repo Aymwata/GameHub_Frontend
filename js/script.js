@@ -49,6 +49,27 @@ const baseDatosProductos = [
         }
     ];
 
+
+// ==========================================
+// FUNCIONES GLOBALES
+// ==========================================
+
+const formBusqueda = document.getElementById('form-busqueda');
+const inputBusqueda = document.getElementById('input-busqueda');
+
+if (formBusqueda) {
+    formBusqueda.addEventListener('submit', (e) => {
+        e.preventDefault(); 
+        const termino = inputBusqueda.value.trim();
+        
+        if (termino) {
+            window.location.href = `catalogo.html?buscar=${encodeURIComponent(termino)}`;
+        } else {
+            window.location.href = `catalogo.html`;
+        }
+    });
+}
+
 // ==========================================
 // FUNCIONES PARA INDEX
 // ==========================================
@@ -93,7 +114,21 @@ const selectOrdenar = document.getElementById('ordenar-productos');
 
 if (grillcatalogo) {
 
+    const parametrosURL = new URLSearchParams(window.location.search);
+    const categoriaURL = parametrosURL.get('categoria');
+
     let productosMostrados = [...baseDatosProductos];
+
+    if (categoriaURL) {
+        productosMostrados = baseDatosProductos.filter(producto => producto.categoria === categoriaURL);
+
+        const checkboxCategoria = document.querySelector('input[id^="cat-"][value="' + categoriaURL + '"]');
+        if (checkboxCategoria) {
+            checkboxCategoria.checked = true;
+        }
+    }
+
+    mostrarCatalogo(productosMostrados);
 
     function mostrarCatalogo(productos) {
         grillcatalogo.innerHTML = '';
@@ -147,8 +182,6 @@ if (grillcatalogo) {
 
     }
 
-    mostrarCatalogo(baseDatosProductos);
-
     if (btnAplicarFiltros) {
         btnAplicarFiltros.addEventListener('click', () => {
             const categoriaSeleccionada = Array.from(document.querySelectorAll('input[id^="cat-"]:checked')).map(cb => cb.value);
@@ -166,6 +199,12 @@ if (grillcatalogo) {
             const productosListos = ordenarProductos(productosMostrados, selectOrdenar.value);
             mostrarCatalogo(productosListos);
         });
+
+        if (categoriaURL) {
+            btnAplicarFiltros.click();
+        } else {
+            mostrarCatalogo(productosMostrados);
+        }
     }
 
     if (selectOrdenar) {
@@ -174,6 +213,7 @@ if (grillcatalogo) {
             mostrarCatalogo(productosListos);
         });
     }
+}
 // ==========================================
 // FUNCIONES PARA CHECKOUT
 // ==========================================
@@ -245,5 +285,4 @@ if (grillaOrdenes) {
         `;
         grillaOrdenes.innerHTML += tarjetaHTML;
     });
-}
 }
