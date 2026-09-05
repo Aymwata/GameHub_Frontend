@@ -406,3 +406,19 @@ main {
   background-color: var(--color-primario);
   color: var(--color-superficie);
 }
+body {
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: Arial, sans-serif;
+  margin: 0;
+  /* Nuevas propiedades para fijar el footer al fondo */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; 
+}
+
+main {
+  padding: 0;
+  /* Hace que el main crezca y empuje el footer hacia abajo */
+  flex-grow: 1; 
+}
