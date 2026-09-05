@@ -1,0 +1,37 @@
+.btn-carrito-accion, 
+.btn-carrito-vaciar {
+    background-color: var(--color-acento);
+    color: var(--color-superficie);
+    border: none;
+    border-radius: var(--radio-borde);
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+.btn-carrito-accion:hover, 
+.btn-carrito-vaciar:hover {
+    background-color: var(--color-primario);
+}
+.btn-carrito-pago {
+    background-color: var(--color-primario);
+    color: var(--color-superficie);
+    border: none;
+    border-radius: var(--radio-borde);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.btn-carrito-pago:hover {
+    background-color: var(--color-acento);
+}
+.btn-carrito-quitar {
+    background-color: transparent;
+    color: var(--color-error);
+    border: 1px solid var(--color-error);
+    border-radius: var(--radio-borde);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.btn-carrito-quitar:hover {
+    background-color: var(--color-error);
+    color: var(--color-superficie);
+}
