@@ -1,26 +1,75 @@
-<main class="contenedor-checkout">
-    <section>
-        <h1>Finalizar Compra</h1>
-        <form id = "form-checkout" novalidate>
-            <article class = "grupo-form">
-                <label for="nombre">Nombre completo</label>
-                <input type="text" name="nombre" id="nombre" autocomplete="name" required>
-                <span class ="error" id="error-nombre" style="display: none;">Requerido</span>
-            </article>
-            <article class = "group-form">
-                <label for="email">Correo electrónico</label>
-                <input type ="email"  id="correo" autocomplete="email" required>
-                <span class ="error" id="error-correo" style="display: none;">Formato Invalido</span>
-            </article>
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="./css/styles.css">
+        <title>GameHub - Checkout</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <header>
+            <div class="header-container">
+                <div class="header-logo">
+                    <img src="./assets/images/logo.png" alt="GameHub Logo">
+                </div>
+                <div class="header-acciones">
+                    <a href="ordenes.html" class="link-cuenta">Mis Órdenes</a>
+                    <a href="carrito.html" class="btn-carrito">Carrito  (1)</a>
+                </div>
+            </div>
+        </header>
+        <main class="container">
+            <h2 class="titulo-seccion">Finalizar Compra</h2>
 
-            <article class = "group-form">
-                <label for="Telefono">Telefono de Contacto</label>
-                <input type ="tel"  id="numero" autocomplete="tel" required>
-                <small>Ejemplo: 940350943</small>
-                <span class ="error" id="error-telefono" style="display: none;">Debe tener almenos 9 numeros</span>
-            </article>
-        </form>
-    </section>    
-</main>
-    
+            <section class="contenedor-form">
+                <form id="form-checkout" novalidate>
+                    <div class="group-form">
+                        <label for="nombre">Nombre Completo</label>
+                        <input type="text" id="nombre" name="nombre" autocomplete="name" placeholder="Ej:Juan Pérez" required>
+                    </div>
+                    
+                    <div class="group-form">
+                        <label for="email">Correo Electrónico</label>
+                        <input type="email" id="correo" name="correo" autocomplete="email" placeholder="correo@ejemplo.com">
+                        <span class="error-message" id="error-correo">Debes ingresar un correo electrónico válido</span>
+                    </div>
 
+                    <div class="group-form">
+                        <label for="telefono">Teléfono de contacto</label>
+                        <input type="tel" id="telefono" name="telefono" autocomplete="tel" placeholder="Ej: 930809012" required>
+                        <small class="ayuda">Debe tener 9 dígitos.</small>
+                        <span class ="mensaje-error" id="error-telefono">Debes ingresar un teléfono válido</span>
+                    </div>
+
+                    <div class="group-form">
+                        <label for="region">Region</label>
+                        <input type="text" id="region" name="region" autocomplete="address-level1" placeholder="Ej: Valparaiso" required>
+                        <span class="error-message" id="error-region">La region es obligatoria</span>
+                    </div>
+
+                    <div class="group-form">
+                        <label for="comuna">Comuna</label>
+                        <input type="text" id="comuna" name="comuna" autocomplete="address-level2" placeholder="Ej: Valparaiso" required>
+                        <span class="error-message" id="error-comuna">La comuna es obligatoria</span>
+                    </div>
+                    <div class="group-form">
+                        <label for="pago">Metodo de Pago</label>
+                       <select id="pago" name="pago">
+                        <option value="tarjeta">Tarjeta de Credito/Debito</option>
+                        <option value="transferencia">Transferencia Bancaria</option>
+                       </select>
+                    </div>
+
+                    <button type="submit" class="btn-checkout">Confirmar y Pagar</button>
+                </form>
+
+            </section>
+
+        </main>
+        <footer class="footer-principal">
+            <p>&copy; 2026 GameHub Store. Todos los derechos reservados.</p>
+        </footer>
+        <script src="js/checkout.js"></script>
+    </body>
+    </html>
