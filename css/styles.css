@@ -1,3 +1,9 @@
+/* 
+
+Estilos principales 
+
+*/
+
 :root {
   --color-fondo: #F6F9F7;
   --color-superficie: #FFFFFF;
@@ -20,9 +26,19 @@ header {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+main {
+  padding: 0;
+}
+
 footer{
   margin-top: 40px;
 }
+
+/*
+
+Estilos dentro del header
+
+*/
 
 .header-container {
     display: flex;
@@ -39,28 +55,31 @@ footer{
     display: block;
 }
 
-.header-buscador {
+#form-busqueda {
     flex: 1;
     display: flex;
     max-width: 450px;
     height: 40px;
 }
 
-form input {
+#input-busqueda {
     width: 100%;
-    padding: 10px 10px;
     border: none;
     border-radius:  var(--radio-borde) 0 0 var(--radio-borde);
     outline: none;
 }
 
-.header-buscador button {
+#form-busqueda button {
     padding: 10px 10px;
     background-color: var(--color-acento);
     border: none;
     border-radius: 0 var(--radio-borde) var(--radio-borde) 0;
     cursor: pointer;
     color: white;
+}
+
+#form-busqueda button:hover {
+    background-color: #16a34a; 
 }
 
 .btn {
@@ -113,17 +132,11 @@ form input {
     font-weight: bold;
 }
 
-main {
-  padding: 0;
-}
+/*
 
-.banner-principal {
-  background-color: var(--color-primario);
-  color: var(--color-superficie);
-  text-align: center;
-  padding: 10px 0px;
-  margin-bottom: 50px;
-}
+Estilos dentro de Footer
+
+*/
 
 .footer-principal {
   background-color: var(--color-primario);
@@ -131,6 +144,21 @@ main {
   text-align: center;
   padding: 25px 20px;
   margin-top: 40px;
+}
+
+/* 
+
+Estilos dentro de Index 
+
+*/
+
+
+.banner-principal {
+  background-color: var(--color-primario);
+  color: var(--color-superficie);
+  text-align: center;
+  padding: 10px 0px;
+  margin-bottom: 50px;
 }
 
 .carousel-item img {
@@ -199,6 +227,12 @@ main {
   color: white;
 }
 
+/* 
+
+Estilos dentro de Categoría
+
+*/
+
 .tarjeta-categoria {
   background-color: var(--color-superficie);
   border: 1px solid #ddd;
@@ -240,9 +274,12 @@ main {
   border-radius: var(--radio-borde);
 }
 
-/* =========================================
-   CATÁLOGO - INDICADORES DE STOCK
-========================================= */
+/* 
+
+Estilos del stock
+
+*/
+
 .badge-stock-ok {
     background-color: var(--color-acento);
     color: #FFFFFF;
@@ -251,26 +288,31 @@ main {
 }
 
 .badge-stock-out {
-    background-color: #dc3545; /* Rojo estándar para alertas */
+    background-color: #dc3545; 
     color: #FFFFFF;
     font-size: 0.85rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
+/* 
+
+Estilos dentro de cambiar de pagina
+
+*/
+
 .pagination .page-link {
     color: var(--color-primario);
 }
 
-/* Color de la página activa */
 .pagination .page-item.active .page-link {
     background-color: var(--color-primario);
     border-color: var(--color-primario);
     color: var(--color-superficie);
 }
 
-/* Color al pasar el mouse (hover) */
 .pagination .page-link:hover {
     background-color: var(--color-acento);
     color: var(--color-superficie);
     border-color: var(--color-acento);
 }
+
