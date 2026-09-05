@@ -214,3 +214,76 @@ if (grillcatalogo) {
         });
     }
 }
+
+// ==========================================
+// FUNCIONES PARA CHECKOUT
+// ==========================================
+const formCheckout = document.getElementById('form-checkout');
+
+if (formCheckout) {
+    formCheckout.addEventListener('submit', (e) => {
+        e.preventDefault(); 
+        let hayErrores = false;
+
+        const validarCampo = (idInput, idError, condicionError) => {
+            const input = document.getElementById(idInput);
+            const error = document.getElementById(idError);
+            
+            if (condicionError) {
+                error.style.display = 'block';
+                input.style.borderColor = 'var(--color-error)';
+                hayErrores = true;
+            } else {
+                error.style.display = 'none';
+                input.style.borderColor = '#ccc'; 
+            }
+        };
+
+        // Validaciones
+        ['nombre', 'region', 'comuna', 'direccion'].forEach(campo => {
+            validarCampo(campo, `error-${campo}`, document.getElementById(campo).value.trim() === '');
+        });
+
+        const valorCorreo = document.getElementById('correo').value.trim();
+        validarCampo('correo', 'error-correo', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valorCorreo));
+
+        const valorTelefono = document.getElementById('telefono').value.trim();
+        validarCampo('telefono', 'error-telefono', !/^[0-9]{9}$/.test(valorTelefono));
+
+        if (!hayErrores) {
+            const numeroOrden = Math.floor(Math.random() * 10000);
+            alert(`¡Compra realizada con éxito! Tu número de orden es: ORD-${numeroOrden}`);
+            formCheckout.reset();
+            window.location.href = 'ordenes.html'; 
+        }
+    });
+}
+
+// ==========================================
+// FUNCIONES PARA MIS ÓRDENES
+// ==========================================
+const grillaOrdenes = document.getElementById('grilla-ordenes');
+
+if (grillaOrdenes) {
+    const misOrdenes = [
+        { id: 'ORD-8452', fecha: '2023-11-10', estado: 'Entregado', total: 1250000 },
+        { id: 'ORD-9102', fecha: '2023-11-28', estado: 'En ruta', total: 45000 }
+    ];
+
+    misOrdenes.forEach(orden => {
+        const tarjetaHTML = `
+            <div class="tarjeta-orden">
+                <h3>${orden.id}</h3>
+                <p><strong>Fecha:</strong> ${orden.fecha}</p>
+                <p><strong>Estado:</strong> <span style="color: var(--color-acento); font-weight: bold;">${orden.estado}</span></p>
+                <p><strong>Total:</strong> $${orden.total.toLocaleString('es-CL')}</p>
+                <div class="acciones-orden">
+                    <button class="btn-secundario" onclick="alert('Mostrando detalle de ${orden.id}')">Detalle</button>
+                    <button class="btn-secundario" onclick="alert('Escribiendo reseña para ${orden.id}')">Reseñar</button>
+                    <button class="btn-secundario" onclick="alert('Garantía para ${orden.id}')">Garantía</button>
+                </div>
+            </div>
+        `;
+        grillaOrdenes.innerHTML += tarjetaHTML;
+    });
+}
