@@ -102,7 +102,11 @@ function renderizarCarrito() {
                         <span class="fw-bold fs-4 text-success">$${total.toLocaleString('es-CL')}</span>
                     </div>
 
+<<<<<<< HEAD
                     <button onclick="window.location.href='checkout.html'" class="btn-carrito-pago w-100 py-3 fw-bold fs-5">Proceder al Pago</button>
+=======
+                    <button href="checkout.html" class="btn btn-success w-100 py-3 fw-bold fs-5">Proceder al Pago</button>
+>>>>>>> 800fc30d0c516f23511744cc86383749b87adaea
                 </div>
             </div>
         </div>
