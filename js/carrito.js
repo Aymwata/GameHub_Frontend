@@ -1,6 +1,5 @@
 const productosCarrito = [
-    { id: 1, nombre: "Monitor Gamer Samsung 27 Pulgadas", precio: 134990, cantidad: 1, imagen: "assets/images/monitorSamsung.jpg" },
-    { id: 3, nombre: "Tarjeta de Video Nvidia RTX 5060", precio: 444990, cantidad: 2, imagen: "assets/images/tarjetaNvidia.jpg" }
+    { id: 1, nombre: "Lenovo ThinkPad X1 Carbon", precio: 850000, cantidad: 1, imagen: "assets/images/notebookLenovo.jpg" },
 ];
 
 let descuentoAplicado = 0;
@@ -13,7 +12,7 @@ function renderizarCarrito() {
         contenedor.innerHTML = `
             <div class="col-12 text-center py-5 bg-white border rounded shadow-sm">
                 <p class="fs-4 text-muted mb-3">Tu carrito esta vacio.</p>
-                <a href="index.html" class="btn btn-success px-4 py-2">Volver al inicio</a>
+                <a href="index.html" class="btn-carrito-accion px-4 py-2 text-decoration-none d-inline-block">Volver al inicio</a>
             </div>
         `;
         return;
@@ -40,7 +39,7 @@ function renderizarCarrito() {
                 </td>
                 <td class="align-middle fw-bold text-nowrap">$${subtotalLinea.toLocaleString('es-CL')}</td>
                 <td class="align-middle text-center">
-                    <button class="btn btn-outline-danger btn-sm" onclick="eliminarProducto(${index})">Quitar</button>
+                    <button class="btn-carrito-quitar px-3 py-1" onclick="eliminarProducto(${index})">Quitar</button>
                 </td>
             </tr>
         `;
@@ -71,7 +70,7 @@ function renderizarCarrito() {
                     </div>
                 </div>
                 <div class="card-footer bg-white p-3 d-flex justify-content-start">
-                    <button class="btn btn-danger" onclick="vaciarCarrito()">Vaciar carrito completo</button>
+                    <button class="btn-carrito-vaciar px-4 py-2" onclick="vaciarCarrito()">Vaciar carrito completo</button>
                 </div>
             </div>
         </div>
@@ -85,7 +84,7 @@ function renderizarCarrito() {
                         <label class="form-label text-muted small">Ingresar cupon (Prueba: GAME20)</label>
                         <div class="input-group">
                             <input type="text" id="input-cupon" class="form-control" placeholder="Codigo">
-                            <button class="btn btn-success" onclick="aplicarCupon()">Aplicar</button>
+                            <button class="btn-carrito-accion px-3" onclick="aplicarCupon()">Aplicar</button>
                         </div>
                         <div id="mensaje-cupon" class="form-text mt-1"></div>
                     </div>
@@ -103,14 +102,13 @@ function renderizarCarrito() {
                         <span class="fw-bold fs-4 text-success">$${total.toLocaleString('es-CL')}</span>
                     </div>
 
-                    <button class="btn btn-success w-100 py-3 fw-bold fs-5">Proceder al Pago</button>
+                    <button onclick="window.location.href='checkout.html'" class="btn-carrito-pago w-100 py-3 fw-bold fs-5">Proceder al Pago</button>
                 </div>
             </div>
         </div>
     `;
 }
 
-// Funciones de acciones requeridas
 function actualizarCantidad(index, nuevaCantidad) {
     const cantidad = parseInt(nuevaCantidad);
     if (cantidad > 0) {

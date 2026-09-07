@@ -10,28 +10,34 @@
     </head>
     <body class="bg-light">
         <header>
+
             <div class="header-container">
+
+                <!-- Logo -->
                 <div class="header-logo">
                     <a href="index.html"><img src="assets/images/logo.png" alt="Logo GameHub Store"></a>
                 </div>
 
+                <!-- Catálogo -->
                 <div class="header-catalogo">
                     <button class="btn" type="button" id="dropdownCategorias" data-bs-toggle="dropdown" aria-expanded="false">
-                        Categorias
+                        Categorías
                     </button>
                     <ul class="catalogo dropdown-menu" aria-labelledby="dropdownCategorias">
-                        <li><a class="dropdown-item" href="catalogo.html">Todas las Categorias</a></li>
-                        <li><a class="dropdown-item" href="catalogo.html?categoria=tarjetas-graficas">Componentes</a></li>
-                        <li><a class="dropdown-item" href="catalogo.html?categoria=perifericos">Perifericos</a></li>
-                        <li><a class="dropdown-item" href="catalogo.html?categoria=notebooks">Notebooks</a></li>
+                        <li><a class="dropdown-item" href="catalogo.html">Todas las Categorías</a></li>
+                        <li><a class="dropdown-item" href="catalogo.html?categoria=computadores">Computadores</a></li>
+                        <li><a class="dropdown-item" href="catalogo.html?categoria=componentes">Componentes y Piezas</a></li>
+                        <li><a class="dropdown-item" href="catalogo.html?categoria=perifericos">Periféricos</a></li>
                     </ul>
                 </div>
 
-                <div class="header-buscador">
-                    <input type="text" placeholder="Busque productos, marcas y mas...">
-                    <button type="button">Buscar</button>
-                </div>
+                <!-- Buscador -->
+                <form class="d-flex" id="form-busqueda" role="search">
+                    <input class="form-control" type="search" id="input-busqueda" placeholder="Buscar productos..." aria-label="Buscar">
+                    <button class="btn btn-outline-light" type="submit">Buscar</button>
+                </form>
 
+                <!-- Ingreso -->
                 <div class="header-ingreso">
                     <button class="btn" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                         Ingreso
@@ -42,9 +48,10 @@
                     </ul>
                 </div>
                 
+                <!-- Acciones -->
                 <div class="header-acciones">
-                    <a href="ordenes.html" class="link-cuenta">Mis Ordenes</a>
-                    <a href="carrito.html" class="btn-carrito"> Carrito</a>
+                    <a href="ordenes.html" class="link-cuenta">Mis Órdenes</a>
+                    <a href="carrito.html" class="btn-carrito"> Carrito (0)</a>
                 </div>
             </div>
         </header>

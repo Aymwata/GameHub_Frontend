@@ -69,6 +69,8 @@ function renderizarDetalle() {
             </div>
         </div>
     `;
+    
+    // Logica simulada sin localStorage
     document.getElementById('btn-agregar-carro').addEventListener('click', () => {
         const cantidad = document.getElementById('input-cantidad').value;
         alert(`Se agregaron ${cantidad} unidad(es) de ${productoInfo.nombre} al carrito con exito.`);

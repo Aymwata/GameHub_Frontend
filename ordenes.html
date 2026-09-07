@@ -6,17 +6,53 @@
         <link rel="stylesheet" href="./css/styles.css">
         <title>GameHub - Mis Órdenes</title>
         <link rel="stylesheet" href="styles.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     </head>
     <body> 
-        <header> 
+        <header>
+
             <div class="header-container">
+
+                <!-- Logo -->
                 <div class="header-logo">
-                    <img src="./assets/images/logo.png" alt="GameHub Logo">
+                    <a href="index.html"><img src="assets/images/logo.png" alt="Logo GameHub Store"></a>
                 </div>
+
+                <!-- Catálogo -->
+                <div class="header-catalogo">
+                    <button class="btn" type="button" id="dropdownCategorias" data-bs-toggle="dropdown" aria-expanded="false">
+                        Categorías
+                    </button>
+                    <ul class="catalogo dropdown-menu" aria-labelledby="dropdownCategorias">
+                        <li><a class="dropdown-item" href="catalogo.html">Todas las Categorías</a></li>
+                        <li><a class="dropdown-item" href="catalogo.html?categoria=computadores">Computadores</a></li>
+                        <li><a class="dropdown-item" href="catalogo.html?categoria=componentes">Componentes y Piezas</a></li>
+                        <li><a class="dropdown-item" href="catalogo.html?categoria=perifericos">Periféricos</a></li>
+                    </ul>
+                </div>
+
+                <!-- Buscador -->
+                <form class="d-flex" id="form-busqueda" role="search">
+                    <input class="form-control" type="search" id="input-busqueda" placeholder="Buscar productos..." aria-label="Buscar">
+                    <button class="btn btn-outline-light" type="submit">Buscar</button>
+                </form>
+
+                <!-- Ingreso -->
+                <div class="header-ingreso">
+                    <button class="btn" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Ingreso
+                    </button>
+                    <ul class="ingreso dropdown-menu">
+                        <li><a class="dropdown-item" href="login.html">Ingresar</a></li>
+                        <li><a class="dropdown-item" href="register.html">Registrarse</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Acciones -->
                 <div class="header-acciones">
-                    <a href="./ordenes.html" class="link-cuenta">Mis Órdenes</a>
-                    <a href="./carrito.html" class="btn-carrito">Carrito  (1)</a>
-                </div> 
+                    <a href="ordenes.html" class="link-cuenta">Mis Órdenes</a>
+                    <a href="carrito.html" class="btn-carrito"> Carrito (0)</a>
+                </div>
             </div>
         </header>
 
@@ -30,5 +66,7 @@
         </footer>
     <script src="./js/script.js"></script>
 
+
+         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     </body>
 </html>

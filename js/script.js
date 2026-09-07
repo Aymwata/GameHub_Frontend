@@ -80,9 +80,9 @@ if (contenedor) {
     
     const productosDestacados = [
         { id: 1, nombre: "Monitor Gamer 24\" 144Hz IPS FHD", precio: 180000, imagen: "assets/images/monitorSamsung.jpg" },
-        { id: 2, nombre: "SSD 1TB NVMe PCIe 4.0", precio: 85000, imagen: "assets/images/tarjetaNvidia.jpg" }, 
-        { id: 3, nombre: "Brazo Articulado Doble Monitor", precio: 45000, imagen: "assets/images/desktopEsgaming.jpg" },
-        { id: 4, nombre: "Teclado Mecánico Switch Red", precio: 65000, imagen: "assets/images/notebookLenovo.jpg" }
+        { id: 2, nombre: "Tarjeta de Video Nvidia RTX 5060", precio: 320000, imagen: "assets/images/tarjetaNvidia.jpg" }, 
+        { id: 3, nombre: "Desktop Gamer Esgaming Ryzen 5 5500 32GB DDR4 RGB 500GB SSD RTX 5050", precio: 1200000, imagen: "assets/images/desktopEsgaming.jpg" },
+        { id: 4, nombre: "Notebook Lenovo ThinkPad X1 Carbon", precio: 850000, imagen: "assets/images/notebookLenovo.jpg" }
     ];
 
     productosDestacados.forEach(producto => {
@@ -213,4 +213,77 @@ if (grillcatalogo) {
             mostrarCatalogo(productosListos);
         });
     }
+}
+
+// ==========================================
+// FUNCIONES PARA CHECKOUT
+// ==========================================
+const formCheckout = document.getElementById('form-checkout');
+
+if (formCheckout) {
+    formCheckout.addEventListener('submit', (e) => {
+        e.preventDefault(); 
+        let hayErrores = false;
+
+        const validarCampo = (idInput, idError, condicionError) => {
+            const input = document.getElementById(idInput);
+            const error = document.getElementById(idError);
+            
+            if (condicionError) {
+                error.style.display = 'block';
+                input.style.borderColor = 'var(--color-error)';
+                hayErrores = true;
+            } else {
+                error.style.display = 'none';
+                input.style.borderColor = '#ccc'; 
+            }
+        };
+
+        // Validaciones
+        ['nombre', 'region', 'comuna', 'direccion'].forEach(campo => {
+            validarCampo(campo, `error-${campo}`, document.getElementById(campo).value.trim() === '');
+        });
+
+        const valorCorreo = document.getElementById('correo').value.trim();
+        validarCampo('correo', 'error-correo', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valorCorreo));
+
+        const valorTelefono = document.getElementById('telefono').value.trim();
+        validarCampo('telefono', 'error-telefono', !/^[0-9]{9}$/.test(valorTelefono));
+
+        if (!hayErrores) {
+            const numeroOrden = Math.floor(Math.random() * 10000);
+            alert(`¡Compra realizada con éxito! Tu número de orden es: ORD-${numeroOrden}`);
+            formCheckout.reset();
+            window.location.href = 'ordenes.html'; 
+        }
+    });
+}
+
+// ==========================================
+// FUNCIONES PARA MIS ÓRDENES
+// ==========================================
+const grillaOrdenes = document.getElementById('grilla-ordenes');
+
+if (grillaOrdenes) {
+    const misOrdenes = [
+        { id: 'ORD-8452', fecha: '2023-11-10', estado: 'Entregado', total: 1250000 },
+        { id: 'ORD-9102', fecha: '2023-11-28', estado: 'En ruta', total: 45000 }
+    ];
+
+    misOrdenes.forEach(orden => {
+        const tarjetaHTML = `
+            <div class="tarjeta-orden">
+                <h3>${orden.id}</h3>
+                <p><strong>Fecha:</strong> ${orden.fecha}</p>
+                <p><strong>Estado:</strong> <span style="color: var(--color-acento); font-weight: bold;">${orden.estado}</span></p>
+                <p><strong>Total:</strong> $${orden.total.toLocaleString('es-CL')}</p>
+                <div class="acciones-orden">
+                    <button class="btn-secundario" onclick="alert('Mostrando detalle de ${orden.id}')">Detalle</button>
+                    <button class="btn-secundario" onclick="alert('Escribiendo reseña para ${orden.id}')">Reseñar</button>
+                    <button class="btn-secundario" onclick="alert('Garantía para ${orden.id}')">Garantía</button>
+                </div>
+            </div>
+        `;
+        grillaOrdenes.innerHTML += tarjetaHTML;
+    });
 }
