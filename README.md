@@ -14,17 +14,46 @@ Esta versión usa HTML, CSS y JavaScript, sin React ni backend.
 
 También puedes ejecutar `python -m http.server 8000` desde la carpeta del proyecto y abrir `http://localhost:8000`.
 
-Bootstrap 5.3.8 se carga desde CDN y requiere conexión a Internet. La aplicación debe servirse mediante HTTP local; no se recomienda abrir los HTML con `file://`.
+Bootstrap 5.3.8 se carga desde CDN y requiere conexión a Internet. La aplicación usa módulos JavaScript y debe abrirse mediante un servidor HTTP local, como Live Preview; abrir los HTML con `file://` impide cargar esos módulos.
 
 ## Estructura
 
-- `index.html`, `catalogo.html`, `detalle.html`, `carrito.html`, `checkout.html`, `ordenes.html`: seis vistas.
-- `js/datos.js`: catálogo, especificaciones y cupones simulados; fuente común de nombres, precios, identificadores y stock.
-- `js/tienda.js`: cálculos y validaciones independientes de la interfaz.
-- `js/script.js`: eventos, renderizado y persistencia del navegador.
-- `css/styles.css`: identidad visual y estilos compartidos.
-- `assets/images/`: imágenes del proyecto.
-- `tests/tienda.test.cjs`: pruebas de regresión de las reglas de negocio.
+```text
+GameHub_Frontend/
+├── index.html, catalogo.html, detalle.html
+├── carrito.html, checkout.html, ordenes.html
+├── js/
+│   ├── app.js                  # Inicia los módulos y la vista actual.
+│   ├── datos.js                # Productos, categorías, marcas y cupones.
+│   ├── tienda.js               # Cálculos y validaciones de la compra.
+│   ├── almacenamiento.js      # Lee y guarda los datos en localStorage.
+│   ├── estado.js               # Mantiene los datos actuales de la compra.
+│   ├── utilidades.js           # Formato de importes, fechas y texto seguro.
+│   ├── componentes.js          # Tarjetas, totales y controles compartidos.
+│   └── vistas/
+│       ├── inicio.js
+│       ├── catalogo.js
+│       ├── detalle.js
+│       ├── carrito.js
+│       ├── checkout.js
+│       └── ordenes.js
+├── css/
+│   ├── styles.css              # Entrada común que carga las otras hojas.
+│   ├── base.css                # Colores, disposición y accesibilidad.
+│   ├── navegacion.css          # Encabezado, buscador y pie de página.
+│   ├── componentes.css         # Tarjetas, formularios y resúmenes.
+│   └── vistas.css              # Estilos propios de las vistas.
+├── assets/images/
+└── tests/
+    ├── tienda.test.js
+    └── almacenamiento.test.js
+```
+
+Los archivos JavaScript usan `import` y `export`, que permiten compartir funciones sin variables globales. Cada HTML carga únicamente `js/app.js` como módulo y declara su vista mediante `data-vista` en el elemento `body`. La cabecera y el pie conservan el mismo marcado en las seis páginas; se convertirán en componentes al migrar a React.
+
+Para comprender el proyecto, comienza por `datos.js` y `tienda.js`, continúa con `almacenamiento.js` y `estado.js`, y revisa después `app.js` y el archivo de la vista que te interese. Las funciones y secciones mantienen comentarios breves en español.
+
+El checkout valida los campos sin reconstruir el resumen en cada pulsación. El carrito actualiza los importes sin reemplazar el campo de cantidad mientras se edita. Los porcentajes y topes que se muestran en los mensajes se obtienen de los cupones definidos en `datos.js`.
 
 ## Comprobar el recorrido de compra
 
@@ -41,7 +70,13 @@ Carrito, cupón y órdenes se guardan en `localStorage`, en la clave `gamehub-st
 
 Requieren Node.js 18 o superior. Ejecuta `npm test`; no se necesitan dependencias npm.
 
-Estas pruebas de regresión usan el ejecutor integrado de Node. **No sustituyen las pruebas obligatorias de EP2 con Jasmine y Karma ni su reporte de cobertura.**
+Las pruebas revisan cálculos, validaciones, compatibilidad de datos guardados y fallos de almacenamiento con el ejecutor integrado de Node. **No sustituyen las pruebas obligatorias de EP2 con Jasmine y Karma ni su reporte de cobertura.**
+
+## Mantener el formato
+
+El archivo `.prettierrc.json` define una indentación de cuatro espacios y un formato consistente para HTML, CSS y JavaScript. Si tienes la extensión Prettier de VS Code, puede utilizar esa configuración al formatear.
+
+También puedes ejecutar `npx prettier@3.6.2 --write .`; la primera ejecución necesita conexión para descargar la herramienta. Este paso es opcional y no hace falta para abrir la tienda ni ejecutar las pruebas.
 
 ## Continuación en EP2
 

@@ -1,0 +1,135 @@
+/* Organiza el encabezado compartido y permite que sus controles cambien de fila. */
+header {
+    background-color: var(--color-primario);
+    box-shadow: var(--sombra-suave);
+}
+
+.header-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 1440px;
+    margin-inline: auto;
+    padding: 10px 20px;
+    gap: 30px;
+}
+
+.header-container > * {
+    min-width: 0;
+}
+
+.header-logo img {
+    max-height: 40px;
+    width: auto;
+    display: block;
+}
+
+/* Personaliza solo los botones del menú sin alterar todos los botones de Bootstrap. */
+.btn-menu {
+    background: transparent;
+    color: white;
+    padding: 5px 10px;
+    border: 1px solid white;
+    border-radius: var(--radio-borde);
+}
+
+.btn-menu:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.header-container .dropdown-item {
+    padding: 10px 20px;
+    color: var(--color-texto);
+}
+
+.header-container .dropdown-item:hover {
+    background-color: #f0f0f0;
+    color: var(--color-primario);
+}
+
+/* Distribuye el campo de búsqueda y su botón como un solo control visual. */
+#form-busqueda {
+    flex: 1;
+    max-width: 450px;
+    height: 40px;
+}
+
+#input-busqueda {
+    width: 100%;
+    border: none;
+    border-radius: var(--radio-borde) 0 0 var(--radio-borde);
+}
+
+#form-busqueda button {
+    padding: 10px;
+    background-color: var(--color-acento);
+    border: none;
+    border-radius: 0 var(--radio-borde) var(--radio-borde) 0;
+    color: var(--color-texto);
+}
+
+#form-busqueda button:hover {
+    background-color: #16a34a;
+}
+
+/* Agrupa los accesos a órdenes y carrito junto al aviso del modo de demostración. */
+.header-acciones {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.modo-demo {
+    color: white;
+    font-size: 0.85rem;
+}
+
+.link-cuenta {
+    color: white;
+    text-decoration: none;
+    padding: 5px 10px;
+}
+
+.link-cuenta:hover {
+    text-decoration: underline;
+}
+
+.btn-carrito {
+    background-color: var(--color-acento);
+    color: var(--color-texto);
+    padding: 5px 10px;
+    border-radius: var(--radio-borde);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Mantiene el pie consistente en todas las vistas. */
+.footer-principal {
+    background-color: var(--color-primario);
+    color: var(--color-superficie);
+    text-align: center;
+    padding: 25px 20px;
+    margin-top: 40px;
+}
+
+/* Coloca la búsqueda en una fila propia cuando el encabezado tiene poco espacio. */
+@media (max-width: 767px) {
+    .header-container {
+        gap: 12px;
+        padding: 12px;
+    }
+
+    #form-busqueda {
+        order: 2;
+        flex-basis: 100%;
+        max-width: none;
+    }
+
+    .header-acciones {
+        gap: 8px;
+        justify-content: center;
+    }
+}

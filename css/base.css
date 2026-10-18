@@ -1,0 +1,70 @@
+/* Define la identidad visual y las medidas reutilizadas por la tienda. */
+:root {
+    --color-fondo: #f6f9f7;
+    --color-superficie: #ffffff;
+    --color-primario: #14532d;
+    --color-acento: #22c55e;
+    --color-texto: #101418;
+    --color-error: #b42318;
+    --color-borde: #dddddd;
+    --radio-borde: 8px;
+    --sombra-suave: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Mantiene el contenido en columna y el pie al final de la pantalla. */
+body {
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex-grow: 1;
+    padding: 0;
+}
+
+/* Limita el contenido sin modificar la clase container de Bootstrap. */
+.contenedor-pagina {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding: 20px;
+}
+
+.titulo-seccion {
+    font-size: 30px;
+    margin-bottom: 20px;
+    color: var(--color-primario);
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Distingue los controles inválidos, deshabilitados y seleccionados con teclado. */
+[hidden] {
+    display: none !important;
+}
+
+[aria-invalid='true'] {
+    border-color: var(--color-error) !important;
+}
+
+button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+:where(a, button, input, select, summary):focus-visible {
+    outline: 3px solid #b45309;
+    outline-offset: 3px;
+}
+
+/* Ajusta los títulos al espacio disponible en pantallas pequeñas. */
+@media (max-width: 767px) {
+    .titulo-seccion {
+        font-size: 1.6rem;
+    }
+}
