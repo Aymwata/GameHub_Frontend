@@ -1,9 +1,6 @@
-/* 
+/* Define los colores y las reglas visuales compartidas por la tienda. */
 
-Estilos principales 
-
-*/
-
+/* Guarda los colores y el redondeado que se reutilizan en todas las vistas. */
 :root {
   --color-fondo: #F6F9F7;
   --color-superficie: #FFFFFF;
@@ -14,6 +11,7 @@ Estilos principales
   --radio-borde: 8px;
 }
 
+/* Organiza la página en columna para mantener el pie al final de la pantalla. */
 body {
   background-color: var(--color-fondo);
   color: var(--color-texto);
@@ -29,6 +27,7 @@ main {
   flex-grow: 1; 
 }
 
+/* Define el fondo y la distribución del encabezado de navegación. */
 header {
     background-color: var(--color-primario);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -124,6 +123,7 @@ header {
     font-weight: bold;
 }
 
+/* Separa el pie de página del contenido principal. */
 footer {
   margin-top: 40px;
 }
@@ -136,6 +136,7 @@ footer {
   margin-top: 40px;
 }
 
+/* Da formato al banner y a las imágenes del carrusel de inicio. */
 .banner-principal {
   background-color: var(--color-primario);
   color: var(--color-superficie);
@@ -154,6 +155,7 @@ footer {
     display: block; 
 }
 
+/* Limita el ancho del contenido y deja espacio en sus bordes. */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -168,6 +170,7 @@ footer {
     text-align: center;
 }
 
+/* Da formato a las tarjetas de productos y sus elementos internos. */
 .tarjeta-producto {
   border: 1px solid #ddd;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -210,6 +213,7 @@ footer {
   color: white;
 }
 
+/* Da formato a los accesos por categoría y a su efecto al pasar el cursor. */
 .tarjeta-categoria {
   background-color: var(--color-superficie);
   border: 1px solid #ddd;
@@ -244,6 +248,7 @@ footer {
   color: var(--color-primario);
 }
 
+/* Da formato al panel de filtros, a los avisos de stock y a la paginación. */
 .tarjeta-filtros {
   border: none;
   background-color: var(--color-superficie);
@@ -281,6 +286,7 @@ footer {
     border-color: var(--color-acento);
 }
 
+/* Da formato a los formularios de despacho y a sus campos. */
 .contenedor-form {
   background-color: var(--color-superficie);
   border: 1px solid #ddd;
@@ -333,6 +339,7 @@ footer {
   display: block;
 }
 
+/* Destaca el botón que confirma la compra simulada. */
 .btn-checkout {
   background-color: var(--color-primario); 
   color: var(--color-superficie); 
@@ -350,6 +357,7 @@ footer {
   background-color: var(--color-acento);
 }
 
+/* Distribuye las órdenes en columnas y da formato a cada tarjeta. */
 .grilla-ordenes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -405,9 +413,7 @@ footer {
   color: var(--color-superficie);
 }
 
-/*
-   STYLE DETALLE PRODUCTO
-*/
+/* Da formato a la imagen, los precios y el botón del detalle de producto. */
 
 .galeria-img {
     width: 100%;
@@ -466,9 +472,7 @@ footer {
     color: var(--color-superficie);
 }
 
-/* 
-    STYLE CARRITO
-*/
+/* Define la apariencia de los botones para modificar y pagar el carrito. */
 
 .btn-carrito-accion, 
 .btn-carrito-vaciar {
@@ -512,7 +516,7 @@ footer {
     background-color: var(--color-error);
     color: var(--color-superficie);
 }
-/* Correcciones compartidas previas a la migración a React. */
+/* Ajusta los componentes compartidos para mantener una presentación consistente. */
 .header-container { flex-wrap: wrap; max-width: 1440px; margin-inline: auto; }
 .header-container > * { min-width: 0; }
 .header-acciones { align-items: center; flex-wrap: wrap; }
@@ -522,10 +526,12 @@ footer {
 .miniatura-carrito { width: 60px; height: 60px; object-fit: contain; }
 .cantidad-detalle { width: 100px; }
 .cantidad-carrito { width: 90px; }
+/* Alinea los importes del resumen y destaca el total final. */
 .totales { margin-block: 20px; }
 .totales > div { display: flex; justify-content: space-between; gap: 12px; }
 .totales dd { text-align: right; }
 .total-final { border-top: 1px solid #ddd; padding-top: 12px; font-size: 1.2rem; }
+/* Distingue los errores y los controles que requieren una corrección. */
 .error-campo { display: block; color: var(--color-error); font-size: .9rem; margin-top: 5px; }
 [hidden] { display: none !important; }
 [aria-invalid="true"] { border-color: var(--color-error) !important; }
@@ -537,7 +543,9 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .btn-agregar:hover, .btn-checkout:hover, .btn-comprar-detalle:hover,
 .btn-carrito-pago:hover { color: var(--color-texto); }
 .btn-carrito-accion:hover, .btn-carrito-vaciar:hover { color: white; }
+/* Marca el control seleccionado para facilitar la navegación con teclado. */
 :where(a, button, input, select, summary):focus-visible { outline: 3px solid #b45309; outline-offset: 3px; }
+/* Ajusta el encabezado, los formularios y los textos para pantallas pequeñas. */
 @media (max-width: 767px) {
     .header-container { gap: 12px; padding: 12px; }
     #form-busqueda { order: 2; flex-basis: 100%; max-width: none; }

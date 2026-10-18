@@ -1,7 +1,9 @@
+// Comprueba las reglas de la tienda con datos de ejemplo y resultados esperados.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const tienda = require('../js/tienda.js');
 const { productos, cupones } = require('../js/datos.js');
+// Fija una fecha de ejemplo para que las pruebas de cupones sean repetibles.
 const fecha = new Date(2026, 9, 17, 12);
 
 test('agregar repetidamente acumula unidades sin duplicar ni modificar el carrito original', () => {

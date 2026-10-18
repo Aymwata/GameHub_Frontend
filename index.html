@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-    <!-- Metadata -->
+    <!-- Define el título, la descripción y las hojas de estilo de la página. -->
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,19 +10,19 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
         <link rel="stylesheet" href="css/styles.css">   
     </head>
-    <!-- Contenido -->
+    <!-- Agrupa todo el contenido visible de la página. -->
     <body>
-        <!-- Encabezado -->
+        <!-- Muestra la navegación compartida entre las vistas de la tienda. -->
         <header>
 
             <nav class="header-container" aria-label="Navegación principal">
 
-                <!-- Logo -->
+                <!-- Permite volver al inicio al pulsar el logo. -->
                 <div class="header-logo">
                     <a href="index.html"><img src="assets/images/logo.png" alt="Logo GameHub Store"></a>
                 </div>
 
-                <!-- Catálogo -->
+                <!-- Ofrece accesos al catálogo completo y a sus categorías. -->
                 <div class="header-catalogo">
                     <button class="btn" type="button" id="dropdownCategorias" data-bs-toggle="dropdown" aria-expanded="false">
                         Categorías
@@ -35,14 +35,14 @@
                     </ul>
                 </div>
 
-                <!-- Buscador -->
+                <!-- Recoge el texto que se buscará en el catálogo. -->
                 <form class="d-flex" id="form-busqueda" role="search">
                     <input class="form-control" type="search" id="input-busqueda" placeholder="Buscar productos..." aria-label="Buscar">
                     <button class="btn btn-outline-light" type="submit">Buscar</button>
                 </form>
                 <div class="header-ingreso"><span class="modo-demo">Modo demostración</span></div>
                 
-                <!-- Acciones -->
+                <!-- Permite abrir el historial de órdenes y el carrito. -->
                 <div class="header-acciones">
                     <a href="ordenes.html" class="link-cuenta">Mis Órdenes</a>
                     <a href="carrito.html" class="btn-carrito"> Carrito (0)</a>
@@ -50,11 +50,11 @@
             </nav>
         </header>
 
-        <!-- Principal -->
+        <!-- Contiene la información principal de esta vista. -->
         <main>
             <h1 class="visually-hidden">GameHub Store: tienda gamer</h1>
 
-            <!-- Carrusel -->
+            <!-- Presenta los banners promocionales con controles para cambiar de imagen. -->
             <section class="banner-principal">
 
                 <div id="carrusel" class="carousel slide" data-bs-ride="carousel">
@@ -105,13 +105,13 @@
                 </div>
             </section>
 
-            <!-- Productos Destacados -->
+            <!-- Reserva el espacio donde JavaScript agrega los productos destacados. -->
             <section class="container my-5">
                 <h2 class="titulo-seccion">Productos Destacados</h2>
                 <div id="contenedor-destacados" class="row"></div>
             </section>
 
-            <!-- Categorías -->
+            <!-- Ofrece accesos directos al catálogo filtrado por categoría. -->
             <section class="container my-5">
                 <h2 class="titulo-seccion">Explora por Categorías</h2>
                 <div class="row">
@@ -146,7 +146,7 @@
                 </div>
             </section>
 
-            <!-- Video -->
+            <!-- Muestra un video de presentación dentro de un contenedor adaptable. -->
             <section class="container my-5">
                 <h2 class="titulo-seccion">Descubre la nueva generación</h2>
                 <div class="row justify-content-center">
@@ -161,13 +161,13 @@
             </section>
         </main>
 
-        <!-- Pie de página -->
+        <!-- Muestra la información general de la tienda al final de la página. -->
         <footer class="footer-principal">
             <p class="mb-0">&copy; 2026 GameHub Store. Todos los derechos reservados.</p>
             <p class="small mt-2 mb-0">Tienda de demostración académica. Los pagos son simulados.</p>
         </footer>
 
-        <!-- Imports -->
+        <!-- Carga los datos, las reglas, la interfaz y las funciones de Bootstrap. -->
         <script src="js/datos.js"></script>
         <script src="js/tienda.js"></script>
         <script src="js/script.js"></script>

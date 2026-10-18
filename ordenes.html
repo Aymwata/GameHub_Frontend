@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+    <!-- Configura el título y los estilos utilizados en esta página. -->
     <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,16 +9,17 @@
         <link rel="stylesheet" href="css/styles.css">
     </head>
     <body> 
+        <!-- Muestra el menú compartido y los accesos a las otras vistas. -->
         <header>
 
             <nav class="header-container" aria-label="Navegación principal">
 
-                <!-- Logo -->
+                <!-- Permite volver al inicio al pulsar el logo. -->
                 <div class="header-logo">
                     <a href="index.html"><img src="assets/images/logo.png" alt="Logo GameHub Store"></a>
                 </div>
 
-                <!-- Catálogo -->
+                <!-- Ofrece accesos al catálogo completo y a sus categorías. -->
                 <div class="header-catalogo">
                     <button class="btn" type="button" id="dropdownCategorias" data-bs-toggle="dropdown" aria-expanded="false">
                         Categorías
@@ -30,14 +32,14 @@
                     </ul>
                 </div>
 
-                <!-- Buscador -->
+                <!-- Recoge el texto que se buscará en el catálogo. -->
                 <form class="d-flex" id="form-busqueda" role="search">
                     <input class="form-control" type="search" id="input-busqueda" placeholder="Buscar productos..." aria-label="Buscar">
                     <button class="btn btn-outline-light" type="submit">Buscar</button>
                 </form>
                 <div class="header-ingreso"><span class="modo-demo">Modo demostración</span></div>
                 
-                <!-- Acciones -->
+                <!-- Permite abrir el historial de órdenes y el carrito. -->
                 <div class="header-acciones">
                     <a href="ordenes.html" class="link-cuenta">Mis Órdenes</a>
                     <a href="carrito.html" class="btn-carrito"> Carrito (0)</a>
@@ -45,11 +47,13 @@
             </nav>
         </header>
 
+        <!-- Contiene la información y los controles principales de esta vista. -->
         <main class="container">
             <h1 class="titulo-seccion">Historial de compras</h1>
 
             <div id="grilla-ordenes" class="grilla-ordenes"></div>
         </main>
+        <!-- Muestra la información general de la tienda al final de la página. -->
         <footer class="footer-principal">
             <p class="mb-0">&copy; 2026 GameHub Store. Todos los derechos reservados.</p>
             <p class="small mt-2 mb-0">Tienda de demostración académica. Los pagos son simulados.</p>
