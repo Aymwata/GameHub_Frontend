@@ -1,5 +1,0 @@
-/* Carga los estilos compartidos en un orden común para las seis páginas. */
-@import url('./base.css');
-@import url('./navegacion.css');
-@import url('./componentes.css');
-@import url('./vistas.css');
