@@ -36,3 +36,9 @@ export function calcularResumen(carrito, codigoCupon) {
 
     return { subtotal, descuento, total };
 }
+
+export function validarReduccionStock(stockActual, cantidadComprada) {
+    if (cantidadComprada > stockActual) return stockActual;
+    const nuevoStock = stockActual - cantidadComprada;
+    return nuevoStock < 0 ? 0 : nuevoStock;
+}
