@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { productos } from '../data/productos.js';
 import { categorias } from '../data/categorias.js';
 import TarjetaProducto from '../components/TarjetaProducto.jsx';
 
-function Catalogo() {
+// metodo para que se descuente el stock de productos
+function Catalogo({ catalogo }) {
   const [parametros, setParametros] = useSearchParams();
 
   const [marca, setMarca] = useState('');
@@ -15,7 +15,7 @@ function Catalogo() {
   const busqueda = parametros.get('buscar') || '';
   const categoria = parametros.get('categoria') || '';
 
-  // Actualiza la búsqueda y conserva la categoría seleccionada.
+  // Actualiza la busqueda y conserva la categoria seleccionada.
   function cambiarBusqueda(evento) {
     setParametros({
       buscar: evento.target.value,
@@ -23,7 +23,7 @@ function Catalogo() {
     });
   }
 
-  // Actualiza la categoría y conserva el texto de búsqueda.
+  // Actualiza la categoria y conserva el texto de busqueda.
   function cambiarCategoria(evento) {
     setParametros({
       buscar: busqueda,
@@ -31,7 +31,7 @@ function Catalogo() {
     });
   }
 
-  // Restablece todos los filtros del catálogo.
+  // Restablece todos los filtros del catalogo.
   function limpiarFiltros() {
     setParametros({});
     setMarca('');
@@ -40,7 +40,7 @@ function Catalogo() {
   }
 
   // Selecciona los productos que cumplen los filtros.
-  const productosFiltrados = productos.filter((producto) => {
+  const productosFiltrados = catalogo.filter((producto) => {
     const coincideBusqueda = producto.nombre
       .toLowerCase()
       .includes(busqueda.trim().toLowerCase());
@@ -51,7 +51,7 @@ function Catalogo() {
     const coincideMarca =
       marca === '' || producto.marca.toLowerCase() === marca;
 
-    // Comprueba si el precio está dentro del rango seleccionado.
+    // Comprueba si el precio esta dentro del rango seleccionado.
     let coincidePrecio = true;
 
     if (rangoPrecio === 'hasta-200000') {
@@ -78,7 +78,7 @@ function Catalogo() {
     );
   });
 
-  // Ordena los resultados según la opción seleccionada.
+  // Ordena los resultados segun la opcion seleccionada.
   if (orden === 'menor-precio') {
     productosFiltrados.sort((a, b) => a.precio - b.precio);
   }
@@ -95,16 +95,16 @@ function Catalogo() {
 
   return (
     <main className="pagina-catalogo">
-      <h1>Catálogo de productos</h1>
+      <h1>Catalogo de productos</h1>
 
       <div className="distribucion-catalogo">
         {/* Agrupa los controles para filtrar los productos. */}
-        <aside className="filtros-catalogo" aria-label="Filtros del catálogo">
+        <aside className="filtros-catalogo" aria-label="Filtros del catalogo">
           <h2>Filtrar productos</h2>
 
           <div className="mb-4">
             <label htmlFor="categoria" className="form-label">
-              Categoría
+              Categoria
             </label>
 
             <select
@@ -113,7 +113,7 @@ function Catalogo() {
               value={categoria}
               onChange={cambiarCategoria}
             >
-              <option value="">Todas las categorías</option>
+              <option value="">Todas las categorias</option>
 
               {categorias.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -157,7 +157,7 @@ function Catalogo() {
                     <option value="hasta-200000">Hasta $200.000</option>
                     <option value="200000-500000">$200.001 a $500.000</option>
                     <option value="500000-1000000">$500.001 a $1.000.000</option>
-                    <option value="mas-1000000">Más de $1.000.000</option>
+                    <option value="mas-1000000">Mas de $1.000.000</option>
                 </select>
             </div>
 
@@ -172,7 +172,7 @@ function Catalogo() {
           </button>
         </aside>
 
-        {/* Presenta la búsqueda, el orden y los resultados. */}
+        {/* Presenta la busqueda, el orden y los resultados. */}
         <section className="resultados-catalogo" aria-label="Productos">
           <div className="barra-catalogo">
             <div className="busqueda-catalogo">
@@ -184,7 +184,7 @@ function Catalogo() {
                 id="buscar-producto"
                 type="search"
                 className="form-control"
-                placeholder="¿Qué estás buscando?"
+                placeholder="¿Que estas buscando?"
                 value={busqueda}
                 onChange={cambiarBusqueda}
               />
@@ -222,7 +222,7 @@ function Catalogo() {
           {productosFiltrados.length === 0 && (
             <div className="catalogo-vacio">
               <h2>No encontramos productos</h2>
-              <p>Prueba con otra búsqueda o limpia los filtros.</p>
+              <p>Prueba con otra busqueda o limpia los filtros.</p>
             </div>
           )}
         </section>

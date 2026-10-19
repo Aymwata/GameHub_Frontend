@@ -1,4 +1,4 @@
-import { calcularResumen } from './precios.js'; 
+import { calcularResumen, validarReduccionStock } from './precios.js'; 
 
 describe('Logica de Negocio - Calculos de Precios', () => {
 
@@ -39,6 +39,20 @@ describe('Logica de Negocio - Calculos de Precios', () => {
       
       expect(resumen.subtotal).toBeLessThanOrEqual(0);
       expect(resumen.total).toBe(0);
+    });
+  });
+
+  describe('3. Logica de Inventario', () => {
+    // Prueba 4
+    it('Deberia restar la cantidad comprada del stock actual', () => {
+        const resultado = validarReduccionStock(10, 3);
+        expect(resultado).toBe(7);
+    });
+
+    // Prueba 5
+    it('No deberia descontar el stock si la compra supera el limite', () => {
+        const resultado = validarReduccionStock(5, 10);
+        expect(resultado).toBe(5); 
     });
   });
 
