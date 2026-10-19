@@ -1,0 +1,504 @@
+/* Define los colores de la tienda. */
+:root {
+    --color-fondo: #F6F9F7;
+    --color-superficie: #FFFFFF;
+    --color-primario: #14532D;
+    --color-acento: #22C55E;
+    --color-texto: #101418;
+    --color-error: #B42318;
+}
+
+/* Mantiene el pie al final de la pantalla. */
+body {
+    margin: 0;
+    background: var(--color-fondo);
+    color: var(--color-texto);
+    font-family: Arial, sans-serif;
+}
+
+#root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 24px;
+}
+
+h1,
+.titulo-seccion {
+    color: var(--color-primario);
+    font-weight: bold;
+    margin-bottom: 24px;
+}
+
+.titulo-seccion {
+    font-size: 1.7rem;
+}
+
+/* Organiza el logo y la navegación. */
+.cabecera {
+    background: var(--color-primario);
+    padding: 18px 24px;
+}
+
+/* Distribuye los elementos del encabezado como en la tienda original. */
+.cabecera-contenido {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.cabecera-logo img {
+    width: 260px;
+    max-width: 100%;
+}
+
+.navegacion {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+}
+
+.navegacion a {
+    color: white;
+    text-decoration: none;
+}
+
+.navegacion a:hover {
+    text-decoration: underline;
+}
+
+.navegacion .enlace-carrito {
+    background: var(--color-acento);
+    color: var(--color-texto);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-weight: bold;
+}
+
+/* Unifica tarjetas, imágenes y acciones principales. */
+.card {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px #0000000D;
+}
+
+.producto-imagen {
+    width: 100%;
+    height: 220px;
+    padding: 20px;
+    object-fit: contain;
+}
+
+.detalle-imagen {
+    width: 100%;
+    max-height: 450px;
+    padding: 20px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    object-fit: contain;
+}
+
+.btn-success {
+    background-color: var(--color-primario);
+    border-color: var(--color-primario);
+}
+
+.btn-success:hover {
+    background-color: #0D3D20;
+    border-color: #0D3D20;
+}
+
+/* Presenta los totales y el formulario de cupones. */
+.resumen-carrito {
+    max-width: 480px;
+    margin: 24px 0 24px auto;
+    padding: 24px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+}
+
+.resumen-precios {
+    margin: 24px 0 0;
+}
+
+.resumen-precios > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+
+.resumen-precios dd {
+    text-align: right;
+}
+
+.resumen-total {
+    border-top: 1px solid #ddd;
+    padding-top: 16px;
+    color: var(--color-primario);
+    font-size: 1.3rem;
+}
+
+.table {
+    background: white;
+}
+
+/* Cierra visualmente todas las páginas. */
+.pie-pagina {
+    margin-top: 40px;
+    padding: 28px 24px;
+    text-align: center;
+    background: var(--color-primario);
+    color: white;
+}
+
+/* Adapta la cabecera y la presentación a teléfonos. */
+@media (max-width: 767px) {
+    .cabecera-contenido {
+        justify-content: center;
+    }
+
+    .navegacion {
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .presentacion h1 {
+        font-size: 2rem;
+    }
+
+    main {
+        padding: 24px 16px;
+    }
+}
+
+/* Presenta el menú y el buscador del encabezado. */
+.boton-categorias {
+    color: white;
+    border: 1px solid white;
+}
+
+.boton-categorias:hover,
+.boton-categorias:focus {
+    color: var(--color-primario);
+    background: white;
+}
+
+.buscador-cabecera {
+    flex: 1;
+    min-width: 220px;
+    max-width: 420px;
+}
+
+.boton-buscar {
+    background: var(--color-acento);
+    color: var(--color-texto);
+}
+
+.boton-buscar:hover {
+    background: #16A34A;
+}
+
+/* Mantiene las imágenes del carrusel dentro de su contenedor. */
+.carrusel-inicio {
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--color-primario);
+}
+
+.carrusel-inicio img {
+    max-height: 500px;
+    object-fit: cover;
+}
+
+/* Recupera las tarjetas de categorías del Inicio original. */
+.tarjeta-categoria {
+    height: 100%;
+    text-decoration: none;
+    color: var(--color-texto);
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.tarjeta-categoria .card-body {
+    padding: 28px 20px;
+}
+
+.tarjeta-categoria h3 {
+    font-size: 1.4rem;
+    color: var(--color-primario);
+}
+
+.tarjeta-categoria:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-acento);
+}
+
+/* Coloca el buscador en una fila propia en pantallas pequeñas. */
+@media (max-width: 767px) {
+    .buscador-cabecera {
+        flex-basis: 100%;
+        min-width: 0;
+        max-width: none;
+        order: 3;
+    }
+}
+
+/* Alinea el título y las flechas de los productos destacados. */
+.encabezado-destacados {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.encabezado-destacados .titulo-seccion {
+    margin: 0;
+}
+
+.controles-destacados {
+    display: flex;
+    gap: 8px;
+}
+
+/* Mantiene todas las tarjetas en una sola fila desplazable. */
+.fila-destacados {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+}
+
+.tarjeta-destacada {
+    flex: 0 0 250px;
+    min-width: 0;
+    scroll-snap-align: start;
+}
+
+/* Reduce las imágenes y limita los nombres a dos líneas. */
+.tarjeta-destacada .producto-imagen {
+    height: 170px;
+    padding: 12px;
+}
+
+.tarjeta-destacada h2 {
+    font-size: 1rem;
+    line-height: 1.4;
+    min-height: 2.8em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Distribuye los filtros y los productos en dos columnas. */
+.distribucion-catalogo {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  align-items: start;
+  gap: 28px;
+}
+
+/* Presenta los filtros dentro de un panel blanco. */
+.filtros-catalogo {
+  padding: 24px;
+  background: var(--color-superficie);
+  border: 1px solid #dce5df;
+  border-radius: 12px;
+}
+
+.filtros-catalogo h2 {
+  margin-bottom: 24px;
+  color: var(--color-primario);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.pagina-catalogo .form-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Permite que los resultados se ajusten al espacio disponible. */
+.resultados-catalogo {
+  min-width: 0;
+}
+
+/* Coloca la búsqueda y el orden sobre los productos. */
+.barra-catalogo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 16px;
+  padding: 20px;
+  background: var(--color-superficie);
+  border: 1px solid #dce5df;
+  border-radius: 12px;
+}
+
+.busqueda-catalogo {
+  flex: 1;
+  min-width: 180px;
+}
+
+.orden-catalogo {
+  width: 190px;
+}
+
+.cantidad-resultados {
+  margin: 20px 0;
+  color: #526158;
+  font-size: 0.9rem;
+}
+
+/* Reduce el tamaño de las imágenes y los títulos del catálogo. */
+.pagina-catalogo .producto-imagen {
+  height: 180px;
+  padding: 16px;
+}
+
+.pagina-catalogo .card-body {
+  padding: 18px;
+}
+
+.pagina-catalogo .card h2 {
+  min-height: 4.2em;
+  font-size: 1rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pagina-catalogo .card-body > .fw-bold {
+  color: var(--color-primario);
+  font-size: 1.25rem;
+}
+
+/* Destaca una tarjeta al pasar el cursor sobre ella. */
+.pagina-catalogo .card {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pagina-catalogo .card:hover {
+  border-color: var(--color-acento);
+  box-shadow: 0 5px 16px #00000014;
+}
+
+/* Informa cuando ningún producto coincide con los filtros. */
+.catalogo-vacio {
+  padding: 40px 20px;
+  text-align: center;
+  background: var(--color-superficie);
+  border: 1px solid #dce5df;
+  border-radius: 12px;
+}
+
+.catalogo-vacio h2 {
+  font-size: 1.3rem;
+}
+
+/* Mueve los filtros sobre los resultados en pantallas pequeñas. */
+@media (max-width: 767px) {
+  .distribucion-catalogo {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .orden-catalogo {
+    width: 100%;
+  }
+}
+
+/* Presenta un mensaje centrado cuando el carrito no tiene productos. */
+.carrito-vacio {
+  max-width: 680px;
+  margin: 40px auto;
+  padding: 48px 24px;
+  text-align: center;
+  background: var(--color-superficie);
+  border: 1px solid #dce5df;
+  border-radius: 12px;
+}
+
+.carrito-vacio-icono {
+  display: block;
+  margin-bottom: 20px;
+  font-size: 3.5rem;
+}
+
+.carrito-vacio h2 {
+  margin-bottom: 12px;
+  color: var(--color-primario);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.carrito-vacio p {
+  max-width: 420px;
+  margin: 0 auto 24px;
+  color: #526158;
+  line-height: 1.6;
+}
+
+.carrito-vacio .btn {
+  padding: 10px 24px;
+}
+
+/* Agrupa las acciones dentro del resumen del carrito. */
+.acciones-carrito {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Encierra el resumen del checkout en un panel blanco. */
+.resumen-checkout {
+  padding: 24px;
+  background: var(--color-superficie);
+  border: 1px solid #dce5df;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px #0000000d;
+}
+
+.resumen-checkout h2 {
+  margin-bottom: 20px;
+  color: var(--color-primario);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.resumen-checkout ul {
+  padding-left: 20px;
+}
+
+.resumen-checkout li {
+  margin-bottom: 12px;
+}
+
+/* Separa el botón de regreso del contenido del producto. */
+.volver-catalogo {
+  margin-bottom: 24px;
+  padding: 10px 18px;
+  border-radius: 8px;
+}
