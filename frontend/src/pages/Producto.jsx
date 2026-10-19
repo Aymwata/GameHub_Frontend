@@ -1,15 +1,14 @@
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { productos } from '../data/productos.js';
 import { useState } from 'react';
 
-// Busca el producto indicado en la dirección y muestra su información.
-function Producto({ agregarProducto }) {
+// Busca el producto indicado en la direccion y muestra su informacion.
+function Producto({ catalogo, agregarProducto }) {
     const { id } = useParams();
 
     const [cantidad, setCantidad] = useState('1');
     const navegar = useNavigate();
 
-    // Abre el carrito cuando el producto se agregó correctamente.
+    // Abre el carrito cuando el producto se agrego correctamente.
     function agregar() {
         const agregado = agregarProducto(producto, Number(cantidad));
 
@@ -18,7 +17,7 @@ function Producto({ agregarProducto }) {
         }
     }
 
-    const producto = productos.find(producto => {
+    const producto = catalogo.find(producto => {
         return producto.id === Number(id);
     });
 
@@ -26,7 +25,7 @@ function Producto({ agregarProducto }) {
         return (
             <main>
                 <h1>Producto no encontrado</h1>
-                <Link to="/catalogo">Volver al catálogo</Link>
+                <Link to="/catalogo">Volver al catalogo</Link>
             </main>
         );
     }
@@ -38,7 +37,7 @@ function Producto({ agregarProducto }) {
                 className="btn btn-outline-success volver-catalogo"
             >
                 <span aria-hidden="true">← </span>
-                Volver al catálogo
+                Volver al catalogo
             </Link>
 
             <div className="row g-4 mt-2">
@@ -58,7 +57,7 @@ function Producto({ agregarProducto }) {
                         ${producto.precio.toLocaleString('es-CL')}
                     </p>
 
-                    <p>Categoría: {producto.categoria}</p>
+                    <p>Categoria: {producto.categoria}</p>
                     <p>Stock disponible: {producto.stock}</p>
 
                     <label htmlFor="cantidad" className="form-label">

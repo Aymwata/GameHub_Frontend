@@ -3,6 +3,8 @@ import { Routes, Route } from 'react-router-dom';
 import { leerCompra, guardarCompra } from './services/almacenamiento.js';
 import { buscarCupon, calcularResumen } from './utils/precios.js';
 
+import { productos as catalogoOriginal } from './data/productos.js';
+
 import Cabecera from './components/Cabecera.jsx';
 import Inicio from './pages/Inicio.jsx';
 import Catalogo from './pages/Catalogo.jsx';
@@ -12,9 +14,10 @@ import Checkout from './pages/Checkout.jsx';
 import MisOrdenes from './pages/MisOrdenes.jsx';
 import PieDePagina from './components/PieDePagina.jsx';
 
-// Comparte el carrito entre las páginas de la tienda.
+// Comparte el carrito entre las paginas de la tienda.
 function App() {
     const [compra, setCompra] = useState(leerCompra);
+    const [catalogo, setCatalogo] = useState(catalogoOriginal);
 
     const carrito = compra.carrito;
     const ordenes = compra.ordenes;
@@ -26,8 +29,7 @@ function App() {
         cantidadProductos += producto.cantidad;
     }
 
-    
-    // Actualiza el carrito y retira el cupón cuando queda vacío.
+    // Actualiza el carrito y retira el cupon cuando queda vacio.
     function actualizarCarrito(nuevoCarrito) {
         let cupon = compra.cupon;
 
@@ -48,7 +50,7 @@ function App() {
     // Agrega un producto o aumenta sus unidades sin superar el stock.
     function agregarProducto(producto, cantidad) {
         if (!Number.isInteger(cantidad) || cantidad < 1) {
-            setMensaje('La cantidad debe ser un número entero mayor que cero.');
+            setMensaje('La cantidad debe ser un numero entero mayor que cero.');
             return false;
         }
 
@@ -81,7 +83,7 @@ function App() {
         return actualizarCarrito(nuevoCarrito);
     }
 
-    // Cambia las unidades de una línea del carrito.
+    // Cambia las unidades de una linea del carrito.
     function cambiarCantidad(id, cantidad) {
         const producto = carrito.find(item => item.id === id);
 
@@ -112,7 +114,7 @@ function App() {
         actualizarCarrito([]);
     }
 
-    // Guarda la orden con su descuento y después vacía el carrito.
+    // Guarda la orden con su descuento y despues vacia el carrito.
     function finalizarCompra(datos) {
         if (carrito.length === 0) {
             setMensaje('Agrega productos antes de comprar.');
@@ -120,6 +122,18 @@ function App() {
         }
 
         const resumen = calcularResumen(carrito, compra.cupon);
+
+        const nuevoCatalogo = catalogo.map(productoOriginal => {
+            const itemComprado = carrito.find(item => item.id === productoOriginal.id);
+            if (itemComprado) {
+                return { 
+                    ...productoOriginal, 
+                    stock: productoOriginal.stock - itemComprado.cantidad 
+                };
+            }
+            return productoOriginal;
+        });
+        setCatalogo(nuevoCatalogo);
 
         const orden = {
             id: 'ORD-' + Date.now(),
@@ -144,7 +158,7 @@ function App() {
         return true;
     }
 
-    // Aplica un cupón vigente o lo retira cuando se recibe un código vacío.
+    // Aplica un cupon vigente o lo retira cuando se recibe un codigo vacio.
     function aplicarCupon(codigo) {
         let codigoValido = '';
 
@@ -152,7 +166,7 @@ function App() {
             const cupon = buscarCupon(codigo);
 
             if (!cupon) {
-                setMensaje('Cupón inválido o vencido. No se cambió el descuento.');
+                setMensaje('Cupon invalido o vencido. No se cambio el descuento.');
                 return false;
             }
 
@@ -160,7 +174,7 @@ function App() {
         }
 
         if (!guardarCompra(carrito, ordenes, codigoValido)) {
-            setMensaje('No se pudo guardar el cupón.');
+            setMensaje('No se pudo guardar el cupon.');
             return false;
         }
 
@@ -181,11 +195,11 @@ function App() {
 
             <Routes>
                 <Route path="/" element={<Inicio />} />
-                <Route path="/catalogo" element={<Catalogo />} />
+                <Route path="/catalogo" element={<Catalogo catalogo={catalogo} />} />
 
                 <Route
                     path="/producto/:id"
-                    element={<Producto agregarProducto={agregarProducto} />}
+                    element={<Producto catalogo={catalogo} agregarProducto={agregarProducto} />}
                 />
 
                 <Route
@@ -220,7 +234,7 @@ function App() {
 
                 <Route
                     path="*"
-                    element={<main><h1>Página no encontrada</h1></main>}
+                    element={<main><h1>Pagina no encontrada</h1></main>}
                 />
             </Routes>
 
