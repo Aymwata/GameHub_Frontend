@@ -6,8 +6,8 @@ describe('Logica de Negocio - Calculos de Precios', () => {
     // Prueba 1
     it('Deberia calcular el subtotal y total exacto sumando los productos', () => {
       const mockCarrito = [
-        { precio: 20000, cantidad: 2 }, // Aporta 40000
-        { precio: 15000, cantidad: 1 }  // Aporta 15000
+        { precio: 20000, cantidad: 2 }, 
+        { precio: 15000, cantidad: 1 }  
       ];
       
       const resumen = calcularResumen(mockCarrito, '');

@@ -1,6 +1,6 @@
 import { cupones } from '../data/cupones.js';
 
-// Busca un cupón y comprueba sus fechas de vigencia.
+// Busca un cupon y comprueba sus fechas de vigencia.
 export function buscarCupon(codigo) {
     const texto = codigo.trim().toUpperCase();
     const cupon = cupones.find(item => item.codigo === texto);
