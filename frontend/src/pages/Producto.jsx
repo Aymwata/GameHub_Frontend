@@ -8,18 +8,58 @@ function Producto({ catalogo, agregarProducto }) {
     const [cantidad, setCantidad] = useState('1');
     const navegar = useNavigate();
 
+    const productosDisponibles = Array.isArray(catalogo) ? catalogo : [];
+    const producto = productosDisponibles.find(producto => {
+        return producto.id === Number(id);
+    });
+
+    const cantidadNumero = Number(cantidad);
+    const cantidadValida =
+        producto &&
+        Number.isInteger(cantidadNumero) &&
+        cantidadNumero >= 1 &&
+        cantidadNumero <= producto.stock;
+
     // Abre el carrito cuando el producto se agrego correctamente.
     function agregar() {
-        const agregado = agregarProducto(producto, Number(cantidad));
+        if (!producto || typeof agregarProducto !== 'function') {
+            return;
+        }
+
+        const valor = Number(cantidad);
+
+        if (!Number.isInteger(valor) || valor < 1 || valor > producto.stock) {
+            return;
+        }
+
+        const agregado = agregarProducto(producto, valor);
 
         if (agregado) {
             navegar('/carrito');
         }
     }
 
-    const producto = catalogo.find(producto => {
-        return producto.id === Number(id);
-    });
+    function manejarCambioCantidad(evento) {
+        if (!producto) {
+            return;
+        }
+
+        const valor = evento.target.value;
+
+        if (valor === '') {
+            setCantidad('');
+            return;
+        }
+
+        const numero = Number(valor);
+
+        if (!Number.isInteger(numero) || numero < 1) {
+            setCantidad('1');
+            return;
+        }
+
+        setCantidad(String(Math.min(numero, producto.stock)));
+    }
 
     if (!producto) {
         return (
@@ -71,7 +111,7 @@ function Producto({ catalogo, agregarProducto }) {
                         min="1"
                         max={producto.stock}
                         value={cantidad}
-                        onChange={evento => setCantidad(evento.target.value)}
+                        onChange={manejarCambioCantidad}
                         disabled={producto.stock === 0}
                     />
 
@@ -79,7 +119,7 @@ function Producto({ catalogo, agregarProducto }) {
                         type="button"
                         className="btn btn-success"
                         onClick={agregar}
-                        disabled={producto.stock === 0}
+                        disabled={producto.stock === 0 || !cantidadValida}
                     >
                         Agregar al carrito
                     </button>
