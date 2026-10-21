@@ -7,14 +7,14 @@ import '@testing-library/jest-dom/vitest';
 
 import Inicio from '../pages/Inicio';
 
-// 1. Mock de Bootstrap Carousel soportando la instanciación con 'new'
+//Prueba 1
 vi.mock('bootstrap', () => ({
   Carousel: class {
     dispose = vi.fn();
   }
 }));
 
-// 2. Mock de productos con stock variado para verificar la lógica de filtrado visual
+//Prueba 2
 vi.mock('../data/productos.js', () => ({
   productos: [
     { id: 1, nombre: 'Producto Destacado 1', stock: 5 },
@@ -26,7 +26,7 @@ vi.mock('../data/productos.js', () => ({
   ]
 }));
 
-// 3. Mock de categorías
+//Prueba 3
 vi.mock('../data/categorias.js', () => ({
   categorias: [
     { id: 'monitores', nombre: 'Monitores', descripcion: 'Pantallas de alta frecuencia' },
@@ -34,7 +34,7 @@ vi.mock('../data/categorias.js', () => ({
   ]
 }));
 
-// 4. Mock del subcomponente TarjetaProducto
+//Prueba 4
 vi.mock('../components/TarjetaProducto.jsx', () => ({
   default: (props) => (
     <div data-testid="tarjeta-producto">{props.producto.nombre}</div>
@@ -47,7 +47,7 @@ describe('Interfaz de Usuario - Componente Inicio', () => {
   });
 
   afterEach(() => {
-    cleanup(); // Limpia el DOM simulado tras cada test
+    cleanup(); 
   });
 
   const renderizarInicio = () =>
