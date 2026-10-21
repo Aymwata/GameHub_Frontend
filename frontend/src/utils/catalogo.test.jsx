@@ -7,14 +7,14 @@ import '@testing-library/jest-dom/vitest';
 
 import Catalogo from '../pages/Catalogo';
 
-// Mock del componente visual TarjetaProducto
+
 vi.mock('../components/TarjetaProducto.jsx', () => ({
   default: (props) => (
     <div data-testid="tarjeta-producto">{props.producto.nombre}</div>
   )
 }));
 
-// Mock simple de categorías
+
 vi.mock('../data/categorias.js', () => ({
   categorias: [
     { id: 'monitores', nombre: 'Monitores' },
