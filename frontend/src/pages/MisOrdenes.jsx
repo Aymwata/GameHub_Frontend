@@ -24,20 +24,6 @@ function formatearEstado(estado) {
         .join(' ');
 }
 
-function claseBadgeEstado(estadoTexto) {
-    const clave = estadoTexto.toLowerCase();
-
-    if (clave.includes('aprobado')) {
-        return 'bg-success-subtle text-success border border-success-subtle';
-    }
-
-    if (clave.includes('pendiente')) {
-        return 'bg-warning-subtle text-dark border border-warning-subtle';
-    }
-
-    return 'bg-secondary-subtle text-dark border border-secondary-subtle';
-}
-
 function obtenerImagenItem(item) {
     if (!item) {
         return '';
@@ -116,7 +102,7 @@ function MisOrdenes({ ordenes = [] }) {
                                     )}
                                 </div>
 
-                                <span className={`badge rounded-pill px-3 py-2 ${claseBadgeEstado(estadoTexto)}`}>
+                                <span className="badge rounded-pill bg-light text-dark border px-3 py-2">
                                     {estadoTexto}
                                 </span>
                             </div>
