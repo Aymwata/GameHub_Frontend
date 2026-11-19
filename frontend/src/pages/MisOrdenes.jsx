@@ -116,54 +116,53 @@ function MisOrdenes({ ordenes = [] }) {
                             : [];
 
                     const nombreCliente = obtenerValor(orden, [
+                        'nombre',
+                        'nombreCliente',
                         'cliente.nombre',
                         'comprador.nombre',
-                        'datosEnvio.nombre',
-                        'envio.nombre',
-                        'nombreCliente',
-                        'nombre'
+                        'datos.nombre',
+                        'envio.nombre'
                     ]);
                     const correoCliente = obtenerValor(orden, [
+                        'correo',
+                        'email',
                         'cliente.correo',
                         'cliente.email',
                         'comprador.correo',
-                        'comprador.email',
-                        'correo',
-                        'email'
+                        'datos.correo'
                     ]);
                     const telefonoCliente = obtenerValor(orden, [
+                        'telefono',
                         'cliente.telefono',
                         'comprador.telefono',
-                        'datosEnvio.telefono',
-                        'envio.telefono',
-                        'telefono'
+                        'datos.telefono',
+                        'envio.telefono'
                     ]);
                     const direccionOrden = obtenerValor(orden, [
                         'direccion',
                         'direccionEnvio',
                         'envio.direccion',
-                        'datosEnvio.direccion',
-                        'cliente.direccion',
-                        'comprador.direccion'
+                        'datos.direccion',
+                        'cliente.direccion'
                     ]);
                     const comunaOrden = obtenerValor(orden, [
                         'comuna',
                         'envio.comuna',
-                        'datosEnvio.comuna',
+                        'datos.comuna',
                         'cliente.comuna'
                     ]);
                     const regionOrden = obtenerValor(orden, [
                         'region',
                         'envio.region',
-                        'datosEnvio.region',
+                        'datos.region',
                         'cliente.region'
                     ]);
                     const metodoPago = obtenerValor(orden, [
+                        'pago',
                         'metodoPago',
                         'medioPago',
                         'pago.metodo',
-                        'pago.tipo',
-                        'datosPago.metodo'
+                        'datos.pago'
                     ]);
                     const cuponOrden = obtenerValor(orden, [
                         'cupon',
@@ -221,6 +220,9 @@ function MisOrdenes({ ordenes = [] }) {
                             <div className="card-body p-4">
                                 {hayDetalleCompra && (
                                     <div className="bg-light rounded-3 p-3 mb-4 small">
+                                        <div className="fw-semibold text-dark mb-2">
+                                            Detalle de la compra
+                                        </div>
                                         <div className="row g-2">
                                             {nombreCliente && (
                                                 <div className="col-md-6">
