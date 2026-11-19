@@ -1,150 +1,201 @@
 import { Link } from 'react-router-dom';
 
-// Muestra las compras guardadas y sus productos.
-function MisOrdenes({ ordenes }) {
+function formatearEstado(estado) {
+    if (!estado) {
+        return 'Pendiente de Aprobacion';
+    }
+
+    const limpio = String(estado)
+        .trim()
+        .replace(/[_-]+/g, ' ')
+        .toLowerCase();
+
+    if (limpio === 'aprobado simulado') {
+        return 'Aprobado Simulado';
+    }
+
+    if (limpio === 'pendiente de aprobacion' || limpio === 'pendiente de aprobación') {
+        return 'Pendiente de Aprobacion';
+    }
+
+    return limpio
+        .split(/\s+/)
+        .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))
+        .join(' ');
+}
+
+function claseBadgeEstado(estadoTexto) {
+    const clave = estadoTexto.toLowerCase();
+
+    if (clave.includes('aprobado')) {
+        return 'bg-success-subtle text-success border border-success-subtle';
+    }
+
+    if (clave.includes('pendiente')) {
+        return 'bg-warning-subtle text-dark border border-warning-subtle';
+    }
+
+    return 'bg-secondary-subtle text-dark border border-secondary-subtle';
+}
+
+function obtenerImagenItem(item) {
+    if (!item) {
+        return '';
+    }
+
+    return (
+        item.imagen ||
+        item.img ||
+        item.image ||
+        item.foto ||
+        item.producto?.imagen ||
+        ''
+    );
+}
+
+function MisOrdenes({ ordenes = [] }) {
+    if (!Array.isArray(ordenes) || ordenes.length === 0) {
+        return (
+            <main className="container py-5">
+                <h1 className="h2 fw-bold mb-4">Mis ordenes</h1>
+
+                <section className="card border-0 shadow-sm rounded-4 p-5 text-center">
+                    <h2 className="h4 fw-bold mb-2">Aun no tienes ordenes registradas</h2>
+                    <p className="text-muted mb-4">
+                        Cuando completes una compra en GameHub, aparecera aqui con su detalle.
+                    </p>
+                    <div>
+                        <Link to="/catalogo" className="btn btn-success px-4">
+                            Ir al catalogo
+                        </Link>
+                    </div>
+                </section>
+            </main>
+        );
+    }
+
     return (
         <main className="container py-4">
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
                 <div>
-                    <h1 className="h2 fw-bold mb-1">Mis órdenes</h1>
+                    <h1 className="h2 fw-bold mb-1">Mis ordenes</h1>
                     <p className="text-muted mb-0">
-                        Historial de compras realizadas y estado de preparación.
+                        Revisa el estado y los productos de tus compras anteriores.
                     </p>
                 </div>
 
-                {ordenes.length > 0 && (
-                    <Link to="/catalogo" className="btn btn-outline-success btn-sm">
-                        Seguir comprando
-                    </Link>
-                )}
+                <Link to="/catalogo" className="btn btn-outline-success btn-sm">
+                    Seguir comprando
+                </Link>
             </div>
 
-            {ordenes.length === 0 && (
-                <div className="card border-0 shadow-sm rounded-4 p-5 text-center">
-                    <p className="text-muted mb-3">
-                        Todavía no tienes órdenes.
-                    </p>
-                    <div>
-                        <Link to="/catalogo" className="btn btn-success px-4">
-                            Explorar catálogo
-                        </Link>
-                    </div>
-                </div>
-            )}
+            <div className="d-grid gap-4">
+                {ordenes.map((orden, index) => {
+                    const estadoTexto = formatearEstado(orden.estado);
+                    const items = Array.isArray(orden.items)
+                        ? orden.items
+                        : Array.isArray(orden.productos)
+                            ? orden.productos
+                            : [];
+                    const totalOrden = Number(orden.total ?? orden.resumen?.total ?? 0);
 
-            {ordenes.map(orden => (
-                <article className="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" key={orden.id}>
-                    {/* Cabecera de la orden */}
-                    <div className="card-header bg-white border-bottom py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                        <div>
-                            <span className="small text-muted d-block">Código de orden</span>
-                            <h2 className="h5 fw-bold mb-0 text-dark">{orden.id}</h2>
-                        </div>
+                    return (
+                        <article
+                            key={orden.id || orden.codigo || index}
+                            className="orden-card card border-0 shadow-sm rounded-4 overflow-hidden"
+                        >
+                            <div className="card-header bg-white border-bottom py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                <div>
+                                    <span className="fw-bold text-dark me-2">
+                                        Orden #{orden.id || orden.codigo || index + 1}
+                                    </span>
+                                    {orden.fecha && (
+                                        <small className="text-muted">
+                                            {orden.fecha}
+                                        </small>
+                                    )}
+                                </div>
 
-                        <div className="d-flex align-items-center gap-3">
-                            <div className="text-end">
-                                <span className="small text-muted d-block">Fecha de compra</span>
-                                <span className="fw-medium">
-                                    {new Date(orden.fecha).toLocaleDateString('es-CL')}
+                                <span className={`badge rounded-pill px-3 py-2 ${claseBadgeEstado(estadoTexto)}`}>
+                                    {estadoTexto}
                                 </span>
                             </div>
 
-                            <span className="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
-                                {orden.estado}
-                            </span>
-                        </div>
-                    </div>
+                            <div className="card-body p-4">
+                                {items.length > 0 ? (
+                                    <div className="d-grid gap-3">
+                                        {items.map((item, itemIndex) => {
+                                            const imagenUrl = obtenerImagenItem(item);
+                                            const nombreItem = item.nombre || item.titulo || 'Producto';
+                                            const cantidadItem = Number(item.cantidad || 1);
+                                            const precioUnitario = Number(item.precio || 0);
+                                            const subtotalItem = Number(
+                                                item.subtotal ?? precioUnitario * cantidadItem
+                                            );
 
-                    {/* Cuerpo con datos de pago, despacho y productos */}
-                    <div className="card-body p-4">
-                        <div className="row g-3 mb-4">
-                            <div className="col-md-4">
-                                <div className="bg-light rounded-3 p-3 h-100">
-                                    <span className="small text-muted d-block">Pago</span>
-                                    <span className="fw-semibold text-dark">
-                                        aprobado, simulado
+                                            return (
+                                                <div
+                                                    key={item.id || itemIndex}
+                                                    className="d-flex flex-wrap justify-content-between align-items-center gap-3 pb-3 border-bottom"
+                                                >
+                                                    <div className="d-flex align-items-center gap-3">
+                                                        {imagenUrl ? (
+                                                            <img
+                                                                src={imagenUrl}
+                                                                alt={nombreItem}
+                                                                className="rounded-3 border bg-light"
+                                                                style={{
+                                                                    width: '64px',
+                                                                    height: '64px',
+                                                                    objectFit: 'cover'
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <div
+                                                                className="rounded-3 border bg-light d-flex align-items-center justify-content-center text-muted small"
+                                                                style={{
+                                                                    width: '64px',
+                                                                    height: '64px'
+                                                                }}
+                                                            >
+                                                                Sin foto
+                                                            </div>
+                                                        )}
+
+                                                        <div>
+                                                            <div className="fw-semibold text-dark">
+                                                                {nombreItem}
+                                                            </div>
+                                                            <small className="text-muted d-block">
+                                                                Cantidad: {cantidadItem} · Unitario: ${precioUnitario.toLocaleString('es-CL')}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="fw-bold text-dark text-nowrap">
+                                                        ${subtotalItem.toLocaleString('es-CL')}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <p className="text-muted mb-0">
+                                        Esta orden no tiene detalle de productos.
+                                    </p>
+                                )}
+
+                                <div className="d-flex justify-content-between align-items-center pt-3 mt-2">
+                                    <span className="text-muted fw-medium">Total de la orden</span>
+                                    <span className="fs-5 fw-bold text-success">
+                                        ${totalOrden.toLocaleString('es-CL')}
                                     </span>
                                 </div>
                             </div>
-
-                            <div className="col-md-4">
-                                <div className="bg-light rounded-3 p-3 h-100">
-                                    <span className="small text-muted d-block">Despacho</span>
-                                    <span className="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
-                                        pendiente de preparación
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="col-md-4">
-                                <div className="bg-light rounded-3 p-3 h-100">
-                                    <span className="small text-muted d-block">Dirección de entrega</span>
-                                    <span className="small fw-medium text-dark">
-                                        {orden.despacho.direccion},{' '}
-                                        {orden.despacho.comuna},{' '}
-                                        {orden.despacho.region}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <details open className="border rounded-3 p-3 bg-white">
-                            <summary className="fw-semibold text-dark" style={{ cursor: 'pointer' }}>
-                                Ver detalle ({orden.productos.length} {orden.productos.length === 1 ? 'producto' : 'productos'})
-                            </summary>
-
-                            <div className="table-responsive mt-3">
-                                <table className="table table-sm align-middle mb-0">
-                                    <thead className="table-light">
-                                        <tr>
-                                            <th scope="col">Producto</th>
-                                            <th scope="col" className="text-center">Cantidad</th>
-                                            {orden.productos.some(p => typeof p.precio === 'number') && (
-                                                <th scope="col" className="text-end">Subtotal</th>
-                                            )}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {orden.productos.map(producto => (
-                                            <tr key={producto.id}>
-                                                <td className="py-2 fw-medium text-dark">
-                                                    {producto.nombre}
-                                                </td>
-                                                <td className="text-center">
-                                                    <span className="badge bg-secondary-subtle text-secondary-emphasis rounded-pill px-3">
-                                                        × {producto.cantidad}
-                                                    </span>
-                                                </td>
-                                                {orden.productos.some(p => typeof p.precio === 'number') && (
-                                                    <td className="text-end text-nowrap fw-semibold">
-                                                        {typeof producto.precio === 'number'
-                                                            ? `$${(producto.precio * producto.cantidad).toLocaleString('es-CL')}`
-                                                            : '-'}
-                                                    </td>
-                                                )}
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </details>
-                    </div>
-
-                    {/* Pie de tarjeta con descuento y total */}
-                    <div className="card-footer bg-light border-top py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                        <span className="text-muted">
-                            Descuento:{' '}
-                            <strong className="text-dark">
-                                ${(orden.descuento || 0).toLocaleString('es-CL')}
-                            </strong>
-                        </span>
-
-                        <p className="fs-5 fw-bold text-success mb-0">
-                            Total: ${orden.total.toLocaleString('es-CL')}
-                        </p>
-                    </div>
-                </article>
-            ))}
+                        </article>
+                    );
+                })}
+            </div>
         </main>
     );
 }
