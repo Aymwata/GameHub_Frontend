@@ -39,6 +39,37 @@ function obtenerImagenItem(item) {
     );
 }
 
+function formatearFecha(fecha) {
+    if (!fecha) {
+        return '';
+    }
+
+    const parsed = new Date(fecha);
+    if (Number.isNaN(parsed.getTime())) {
+        return String(fecha);
+    }
+
+    return parsed.toLocaleString('es-CL');
+}
+
+function obtenerValor(orden, rutas) {
+    for (const ruta of rutas) {
+        const partes = ruta.split('.');
+        let actual = orden;
+        for (const parte of partes) {
+            if (actual == null) {
+                actual = undefined;
+                break;
+            }
+            actual = actual[parte];
+        }
+        if (actual !== undefined && actual !== null && String(actual).trim() !== '') {
+            return actual;
+        }
+    }
+    return '';
+}
+
 function MisOrdenes({ ordenes = [] }) {
     if (!Array.isArray(ordenes) || ordenes.length === 0) {
         return (
@@ -83,7 +114,87 @@ function MisOrdenes({ ordenes = [] }) {
                         : Array.isArray(orden.productos)
                             ? orden.productos
                             : [];
+
+                    const nombreCliente = obtenerValor(orden, [
+                        'cliente.nombre',
+                        'comprador.nombre',
+                        'datosEnvio.nombre',
+                        'envio.nombre',
+                        'nombreCliente',
+                        'nombre'
+                    ]);
+                    const correoCliente = obtenerValor(orden, [
+                        'cliente.correo',
+                        'cliente.email',
+                        'comprador.correo',
+                        'comprador.email',
+                        'correo',
+                        'email'
+                    ]);
+                    const telefonoCliente = obtenerValor(orden, [
+                        'cliente.telefono',
+                        'comprador.telefono',
+                        'datosEnvio.telefono',
+                        'envio.telefono',
+                        'telefono'
+                    ]);
+                    const direccionOrden = obtenerValor(orden, [
+                        'direccion',
+                        'direccionEnvio',
+                        'envio.direccion',
+                        'datosEnvio.direccion',
+                        'cliente.direccion',
+                        'comprador.direccion'
+                    ]);
+                    const comunaOrden = obtenerValor(orden, [
+                        'comuna',
+                        'envio.comuna',
+                        'datosEnvio.comuna',
+                        'cliente.comuna'
+                    ]);
+                    const regionOrden = obtenerValor(orden, [
+                        'region',
+                        'envio.region',
+                        'datosEnvio.region',
+                        'cliente.region'
+                    ]);
+                    const metodoPago = obtenerValor(orden, [
+                        'metodoPago',
+                        'medioPago',
+                        'pago.metodo',
+                        'pago.tipo',
+                        'datosPago.metodo'
+                    ]);
+                    const cuponOrden = obtenerValor(orden, [
+                        'cupon',
+                        'codigoCupon',
+                        'resumen.cupon',
+                        'resumen.codigoCupon'
+                    ]);
+
+                    const subtotalOrden = Number(
+                        orden.subtotal ?? orden.resumen?.subtotal ?? 0
+                    );
+                    const descuentoOrden = Number(
+                        orden.descuento ?? orden.resumen?.descuento ?? 0
+                    );
+                    const envioOrden = Number(
+                        orden.costoEnvio ?? orden.envio?.costo ?? orden.resumen?.envio ?? 0
+                    );
                     const totalOrden = Number(orden.total ?? orden.resumen?.total ?? 0);
+
+                    const ubicacionCompleta = [direccionOrden, comunaOrden, regionOrden]
+                        .filter(Boolean)
+                        .join(', ');
+
+                    const hayDetalleCompra = Boolean(
+                        nombreCliente ||
+                        correoCliente ||
+                        telefonoCliente ||
+                        ubicacionCompleta ||
+                        metodoPago ||
+                        cuponOrden
+                    );
 
                     return (
                         <article
@@ -97,7 +208,7 @@ function MisOrdenes({ ordenes = [] }) {
                                     </span>
                                     {orden.fecha && (
                                         <small className="text-muted">
-                                            {orden.fecha}
+                                            {formatearFecha(orden.fecha)}
                                         </small>
                                     )}
                                 </div>
@@ -108,6 +219,49 @@ function MisOrdenes({ ordenes = [] }) {
                             </div>
 
                             <div className="card-body p-4">
+                                {hayDetalleCompra && (
+                                    <div className="bg-light rounded-3 p-3 mb-4 small">
+                                        <div className="row g-2">
+                                            {nombreCliente && (
+                                                <div className="col-md-6">
+                                                    <span className="text-muted">Cliente: </span>
+                                                    <span className="fw-semibold text-dark">{nombreCliente}</span>
+                                                </div>
+                                            )}
+                                            {correoCliente && (
+                                                <div className="col-md-6">
+                                                    <span className="text-muted">Correo: </span>
+                                                    <span className="fw-semibold text-dark">{correoCliente}</span>
+                                                </div>
+                                            )}
+                                            {telefonoCliente && (
+                                                <div className="col-md-6">
+                                                    <span className="text-muted">Telefono: </span>
+                                                    <span className="fw-semibold text-dark">{telefonoCliente}</span>
+                                                </div>
+                                            )}
+                                            {metodoPago && (
+                                                <div className="col-md-6">
+                                                    <span className="text-muted">Metodo de pago: </span>
+                                                    <span className="fw-semibold text-dark">{metodoPago}</span>
+                                                </div>
+                                            )}
+                                            {ubicacionCompleta && (
+                                                <div className="col-12">
+                                                    <span className="text-muted">Direccion: </span>
+                                                    <span className="fw-semibold text-dark">{ubicacionCompleta}</span>
+                                                </div>
+                                            )}
+                                            {cuponOrden && (
+                                                <div className="col-12">
+                                                    <span className="text-muted">Cupon: </span>
+                                                    <span className="fw-semibold text-dark">{cuponOrden}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {items.length > 0 ? (
                                     <div className="d-grid gap-3">
                                         {items.map((item, itemIndex) => {
@@ -171,11 +325,31 @@ function MisOrdenes({ ordenes = [] }) {
                                     </p>
                                 )}
 
-                                <div className="d-flex justify-content-between align-items-center pt-3 mt-2">
-                                    <span className="text-muted fw-medium">Total de la orden</span>
-                                    <span className="fs-5 fw-bold text-success">
-                                        ${totalOrden.toLocaleString('es-CL')}
-                                    </span>
+                                <div className="pt-3 mt-2 d-grid gap-1">
+                                    {subtotalOrden > 0 && subtotalOrden !== totalOrden && (
+                                        <div className="d-flex justify-content-between small text-muted">
+                                            <span>Subtotal</span>
+                                            <span>${subtotalOrden.toLocaleString('es-CL')}</span>
+                                        </div>
+                                    )}
+                                    {descuentoOrden > 0 && (
+                                        <div className="d-flex justify-content-between small text-success">
+                                            <span>Descuento</span>
+                                            <span>-${descuentoOrden.toLocaleString('es-CL')}</span>
+                                        </div>
+                                    )}
+                                    {envioOrden > 0 && (
+                                        <div className="d-flex justify-content-between small text-muted">
+                                            <span>Envio</span>
+                                            <span>${envioOrden.toLocaleString('es-CL')}</span>
+                                        </div>
+                                    )}
+                                    <div className="d-flex justify-content-between align-items-center pt-1">
+                                        <span className="text-muted fw-medium">Total de la orden</span>
+                                        <span className="fs-5 fw-bold text-success">
+                                            ${totalOrden.toLocaleString('es-CL')}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </article>
