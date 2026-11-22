@@ -56,6 +56,44 @@ function obtenerImagenItem(item) {
     );
 }
 
+function obtenerDatoOrden(orden, claves) {
+    if (!orden || typeof orden !== 'object') {
+        return '';
+    }
+
+    const contenedores = [
+        orden,
+        orden.datos,
+        orden.cliente,
+        orden.comprador,
+        orden.envio,
+        orden.despacho,
+        orden.contacto,
+        orden.usuario,
+        orden.formulario
+    ].filter(obj => obj && typeof obj === 'object');
+
+    for (const obj of contenedores) {
+        for (const clave of claves) {
+            const valor = obj[clave];
+            if (valor !== undefined && valor !== null && String(valor).trim() !== '') {
+                return String(valor).trim();
+            }
+        }
+    }
+
+    return '';
+}
+
+function formatearPago(pago) {
+    if (!pago) {
+        return 'No registrado';
+    }
+
+    const texto = String(pago).trim();
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
 // Muestra el historial de ordenes realizadas por el usuario.
 function MisOrdenes({ ordenes = [] }) {
     if (!Array.isArray(ordenes) || ordenes.length === 0) {
@@ -102,6 +140,37 @@ function MisOrdenes({ ordenes = [] }) {
                             ? orden.productos
                             : [];
                     const totalOrden = Number(orden.total ?? orden.resumen?.total ?? 0);
+
+                    const nombreCliente = obtenerDatoOrden(orden, [
+                        'nombre',
+                        'nombreCompleto',
+                        'nombreCliente'
+                    ]) || 'No registrado';
+                    const correoCliente = obtenerDatoOrden(orden, [
+                        'correo',
+                        'email',
+                        'correoElectronico'
+                    ]) || 'No registrado';
+                    const telefonoCliente = obtenerDatoOrden(orden, [
+                        'telefono',
+                        'celular',
+                        'fono'
+                    ]) || 'No registrado';
+                    const regionCliente = obtenerDatoOrden(orden, [
+                        'region'
+                    ]) || 'No registrado';
+                    const comunaCliente = obtenerDatoOrden(orden, [
+                        'comuna',
+                        'ciudad'
+                    ]) || 'No registrado';
+                    const direccionCliente = obtenerDatoOrden(orden, [
+                        'direccion',
+                        'direccionEnvio',
+                        'calle'
+                    ]) || 'No registrado';
+                    const metodoPago = formatearPago(
+                        obtenerDatoOrden(orden, ['pago', 'metodoPago', 'medioPago'])
+                    );
 
                     return (
                         <article
@@ -188,6 +257,49 @@ function MisOrdenes({ ordenes = [] }) {
                                         Esta orden no tiene detalle de productos.
                                     </p>
                                 )}
+
+                                <div className="bg-light rounded-3 border p-3 mt-3 mb-2 small">
+                                    <div className="fw-bold text-dark mb-2">
+                                        Detalle del pedido
+                                    </div>
+
+                                    <div className="row g-2">
+                                        <div className="col-md-6">
+                                            <span className="text-muted">Nombre: </span>
+                                            <span className="fw-semibold text-dark">{nombreCliente}</span>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <span className="text-muted">Correo: </span>
+                                            <span className="fw-semibold text-dark">{correoCliente}</span>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <span className="text-muted">Telefono: </span>
+                                            <span className="fw-semibold text-dark">{telefonoCliente}</span>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <span className="text-muted">Metodo de pago: </span>
+                                            <span className="fw-semibold text-dark">{metodoPago}</span>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <span className="text-muted">Region: </span>
+                                            <span className="fw-semibold text-dark">{regionCliente}</span>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <span className="text-muted">Comuna: </span>
+                                            <span className="fw-semibold text-dark">{comunaCliente}</span>
+                                        </div>
+
+                                        <div className="col-12">
+                                            <span className="text-muted">Direccion: </span>
+                                            <span className="fw-semibold text-dark">{direccionCliente}</span>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div className="d-flex justify-content-between align-items-center pt-3 mt-2">
                                     <span className="text-muted fw-medium">Total de la orden</span>
