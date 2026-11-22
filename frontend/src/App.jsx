@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { leerCompra, guardarCompra } from './services/almacenamiento.js';
+import { obtenerSesion, cerrarSesion } from './services/autenticacion.js';
 import { buscarCupon, calcularResumen } from './utils/precios.js';
 
 import { productos as catalogoOriginal } from './data/productos.js';
@@ -12,10 +13,13 @@ import Producto from './pages/Producto.jsx';
 import Carrito from './pages/Carrito.jsx';
 import Checkout from './pages/Checkout.jsx';
 import MisOrdenes from './pages/MisOrdenes.jsx';
+import Login from './pages/Login.jsx';
+import Registro from './pages/Registro.jsx';
+import Admin from './pages/Admin.jsx';
 import PieDePagina from './components/PieDePagina.jsx';
 
-// Comparte el carrito entre las paginas de la tienda.
 function App() {
+    const [sesion, setSesion] = useState(obtenerSesion);
     const [compra, setCompra] = useState(leerCompra);
     const [catalogo, setCatalogo] = useState(catalogoOriginal);
 
@@ -24,12 +28,15 @@ function App() {
     const [mensaje, setMensaje] = useState('');
 
     let cantidadProductos = 0;
-
     for (const producto of carrito) {
         cantidadProductos += producto.cantidad;
     }
 
-    // Actualiza el carrito y retira el cupon cuando queda vacio.
+    function manejarCerrarSesion() {
+        cerrarSesion();
+        setSesion(null);
+    }
+
     function actualizarCarrito(nuevoCarrito) {
         let cupon = compra.cupon;
 
@@ -47,7 +54,6 @@ function App() {
         return true;
     }
 
-    // Agrega un producto o aumenta sus unidades sin superar el stock.
     function agregarProducto(producto, cantidad) {
         if (!Number.isInteger(cantidad) || cantidad < 1) {
             setMensaje('La cantidad debe ser un numero entero mayor que cero.');
@@ -69,13 +75,9 @@ function App() {
         let nuevoCarrito;
 
         if (existente) {
-            nuevoCarrito = carrito.map(item => {
-                if (item.id === producto.id) {
-                    return { ...item, cantidad: nuevaCantidad };
-                }
-
-                return item;
-            });
+            nuevoCarrito = carrito.map(item =>
+                item.id === producto.id ? { ...item, cantidad: nuevaCantidad } : item
+            );
         } else {
             nuevoCarrito = [...carrito, { ...producto, cantidad }];
         }
@@ -83,7 +85,6 @@ function App() {
         return actualizarCarrito(nuevoCarrito);
     }
 
-    // Cambia las unidades de una linea del carrito.
     function cambiarCantidad(id, cantidad) {
         const producto = carrito.find(item => item.id === id);
 
@@ -92,29 +93,22 @@ function App() {
             return;
         }
 
-        const nuevoCarrito = carrito.map(item => {
-            if (item.id === id) {
-                return { ...item, cantidad };
-            }
-
-            return item;
-        });
+        const nuevoCarrito = carrito.map(item =>
+            item.id === id ? { ...item, cantidad } : item
+        );
 
         actualizarCarrito(nuevoCarrito);
     }
 
-    // Elimina el producto seleccionado.
     function quitarProducto(id) {
         const nuevoCarrito = carrito.filter(item => item.id !== id);
         actualizarCarrito(nuevoCarrito);
     }
 
-    // Retira todos los productos del carrito.
     function vaciarCarrito() {
         actualizarCarrito([]);
     }
 
-    // Guarda la orden con su descuento y despues vacia el carrito.
     function finalizarCompra(datos) {
         if (carrito.length === 0) {
             setMensaje('Agrega productos antes de comprar.');
@@ -126,9 +120,9 @@ function App() {
         const nuevoCatalogo = catalogo.map(productoOriginal => {
             const itemComprado = carrito.find(item => item.id === productoOriginal.id);
             if (itemComprado) {
-                return { 
-                    ...productoOriginal, 
-                    stock: productoOriginal.stock - itemComprado.cantidad 
+                return {
+                    ...productoOriginal,
+                    stock: productoOriginal.stock - itemComprado.cantidad
                 };
             }
             return productoOriginal;
@@ -158,7 +152,6 @@ function App() {
         return true;
     }
 
-    // Aplica un cupon vigente o lo retira cuando se recibe un codigo vacio.
     function aplicarCupon(codigo) {
         let codigoValido = '';
 
@@ -185,7 +178,11 @@ function App() {
 
     return (
         <>
-            <Cabecera cantidad={cantidadProductos} />
+            <Cabecera
+                cantidad={cantidadProductos}
+                sesion={sesion}
+                alCerrarSesion={manejarCerrarSesion}
+            />
 
             {mensaje && (
                 <p className="alert alert-danger m-3" role="alert">
@@ -194,14 +191,13 @@ function App() {
             )}
 
             <Routes>
+                {/* VISTA CLIENTE (Tienda) */}
                 <Route path="/" element={<Inicio />} />
                 <Route path="/catalogo" element={<Catalogo catalogo={catalogo} />} />
-
                 <Route
                     path="/producto/:id"
                     element={<Producto catalogo={catalogo} agregarProducto={agregarProducto} />}
                 />
-
                 <Route
                     path="/carrito"
                     element={
@@ -215,7 +211,6 @@ function App() {
                         />
                     }
                 />
-
                 <Route
                     path="/checkout"
                     element={
@@ -226,10 +221,26 @@ function App() {
                         />
                     }
                 />
-
                 <Route
                     path="/ordenes"
                     element={<MisOrdenes ordenes={ordenes} />}
+                />
+
+                {/* AUTENTICACIÓN */}
+                <Route path="/login" element={<Login alIniciarSesion={setSesion} />} />
+                <Route path="/registro" element={<Registro alIniciarSesion={setSesion} />} />
+
+                {/* VISTA ADMIN */}
+                <Route
+                    path="/admin"
+                    element={
+                        <Admin
+                            sesion={sesion}
+                            catalogo={catalogo}
+                            setCatalogo={setCatalogo}
+                            ordenes={ordenes}
+                        />
+                    }
                 />
 
                 <Route
