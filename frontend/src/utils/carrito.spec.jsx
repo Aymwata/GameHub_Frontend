@@ -1,3 +1,4 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { calcularResumen, validarReduccionStock } from './precios.js'; 
 
 describe('Logica de Negocio - Calculos de Precios', () => {
