@@ -1,243 +1,156 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { leerCompra, guardarCompra } from './services/almacenamiento.js';
-import { buscarCupon, calcularResumen } from './utils/precios.js';
-
-import { productos as catalogoOriginal } from './data/productos.js';
-
+import { cargarCatalogo } from './services/catalogo.js';
+import { useSesion } from './services/sesion.js';
+import AccesoRequerido from './components/AccesoRequerido.jsx';
 import Cabecera from './components/Cabecera.jsx';
+import EstadoCatalogo from './components/EstadoCatalogo.jsx';
 import Inicio from './pages/Inicio.jsx';
 import Catalogo from './pages/Catalogo.jsx';
 import Producto from './pages/Producto.jsx';
 import Carrito from './pages/Carrito.jsx';
 import Checkout from './pages/Checkout.jsx';
 import MisOrdenes from './pages/MisOrdenes.jsx';
+import CategoriasAdmin from './pages/CategoriasAdmin.jsx';
 import PieDePagina from './components/PieDePagina.jsx';
 
-// Comparte el carrito entre las paginas de la tienda.
 function App() {
+    const { usuario, cerrarSesion, solicitarConSesion } = useSesion();
     const [compra, setCompra] = useState(leerCompra);
-    const [catalogo, setCatalogo] = useState(catalogoOriginal);
-
-    const carrito = compra.carrito;
-    const ordenes = compra.ordenes;
+    const compraActual = useRef(compra);
+    const enviandoPedido = useRef(false);
+    const [catalogo, setCatalogo] = useState({ productos: [], categorias: [], estado: 'cargando' });
+    const [revision, setRevision] = useState(0);
     const [mensaje, setMensaje] = useState('');
+    const { productos, categorias, estado } = catalogo;
 
-    let cantidadProductos = 0;
+    useEffect(() => {
+        const peticion = new AbortController();
+        cargarCatalogo(peticion.signal).then(datos => {
+            if (!peticion.signal.aborted) setCatalogo({ ...datos, estado: 'listo' });
+        }).catch(() => {
+            if (!peticion.signal.aborted) setCatalogo({ productos: [], categorias: [], estado: 'error' });
+        });
+        return () => peticion.abort();
+    }, [revision]);
 
-    for (const producto of carrito) {
-        cantidadProductos += producto.cantidad;
+    function recargarCatalogo() {
+        setRevision(actual => actual + 1);
     }
 
-    // Actualiza el carrito y retira el cupon cuando queda vacio.
-    function actualizarCarrito(nuevoCarrito) {
-        let cupon = compra.cupon;
-
-        if (nuevoCarrito.length === 0) {
-            cupon = '';
-        }
-
-        if (!guardarCompra(nuevoCarrito, ordenes, cupon)) {
-            setMensaje('No se pudo guardar el carrito.');
-            return false;
-        }
-
-        setCompra({ carrito: nuevoCarrito, ordenes, cupon });
-        setMensaje('');
-        return true;
+    function reintentarCatalogo() {
+        setCatalogo(actual => ({ ...actual, estado: 'cargando' }));
+        recargarCatalogo();
     }
 
-    // Agrega un producto o aumenta sus unidades sin superar el stock.
-    function agregarProducto(producto, cantidad) {
-        if (!Number.isInteger(cantidad) || cantidad < 1) {
-            setMensaje('La cantidad debe ser un numero entero mayor que cero.');
-            return false;
-        }
+    const productosPorId = new Map(productos.map(producto => [producto.id, producto]));
+    const carrito = compra.carrito.map(({ id, cantidad }) => ({
+        ...(productosPorId.get(id) ?? { id, nombre: 'Producto #' + id, stock: 0, precio: 0 }),
+        cantidad,
+    }));
+    const cantidadProductos = compra.carrito.reduce((total, producto) => total + producto.cantidad, 0);
+    const carritoValido = carrito.every(producto => producto.cantidad <= producto.stock);
 
-        const existente = carrito.find(item => item.id === producto.id);
-        let nuevaCantidad = cantidad;
-
-        if (existente) {
-            nuevaCantidad += existente.cantidad;
-        }
-
-        if (nuevaCantidad > producto.stock) {
-            setMensaje('La cantidad total supera el stock disponible.');
-            return false;
-        }
-
-        let nuevoCarrito;
-
-        if (existente) {
-            nuevoCarrito = carrito.map(item => {
-                if (item.id === producto.id) {
-                    return { ...item, cantidad: nuevaCantidad };
-                }
-
-                return item;
-            });
-        } else {
-            nuevoCarrito = [...carrito, { ...producto, cantidad }];
-        }
-
-        return actualizarCarrito(nuevoCarrito);
+    function persistir(carritoNuevo, cupon) {
+        const nuevaCompra = { carrito: carritoNuevo, cupon: carritoNuevo.length ? cupon : '' };
+        compraActual.current = nuevaCompra;
+        setCompra(nuevaCompra);
+        setMensaje(guardarCompra(nuevaCompra) ? '' : 'No se pudo guardar el carrito en el navegador.');
     }
 
-    // Cambia las unidades de una linea del carrito.
-    function cambiarCantidad(id, cantidad) {
-        const producto = carrito.find(item => item.id === id);
-
-        if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > producto.stock) {
+    function actualizarCantidad(id, cantidad) {
+        const producto = productosPorId.get(id);
+        if (!producto || !Number.isInteger(cantidad) || cantidad < 1 || cantidad > producto.stock) {
             setMensaje('La cantidad debe estar entre 1 y el stock disponible.');
-            return;
+            return false;
         }
-
-        const nuevoCarrito = carrito.map(item => {
-            if (item.id === id) {
-                return { ...item, cantidad };
-            }
-
-            return item;
-        });
-
-        actualizarCarrito(nuevoCarrito);
+        const { carrito: lineas, cupon } = compraActual.current;
+        const nuevasLineas = lineas.some(linea => linea.id === id)
+            ? lineas.map(linea => linea.id === id ? { id, cantidad } : linea)
+            : [...lineas, { id, cantidad }];
+        persistir(nuevasLineas, cupon);
+        return true;
     }
 
-    // Elimina el producto seleccionado.
+    function agregarProducto(producto, cantidad) {
+        const existente = compraActual.current.carrito.find(linea => linea.id === producto.id);
+        return actualizarCantidad(producto.id, (existente?.cantidad ?? 0) + cantidad);
+    }
+
     function quitarProducto(id) {
-        const nuevoCarrito = carrito.filter(item => item.id !== id);
-        actualizarCarrito(nuevoCarrito);
+        const { carrito: lineas, cupon } = compraActual.current;
+        persistir(lineas.filter(item => item.id !== id), cupon);
     }
 
-    // Retira todos los productos del carrito.
-    function vaciarCarrito() {
-        actualizarCarrito([]);
-    }
-
-    // Guarda la orden con su descuento y despues vacia el carrito.
-    function finalizarCompra(datos) {
-        if (carrito.length === 0) {
-            setMensaje('Agrega productos antes de comprar.');
-            return false;
-        }
-
-        const resumen = calcularResumen(carrito, compra.cupon);
-
-        const nuevoCatalogo = catalogo.map(productoOriginal => {
-            const itemComprado = carrito.find(item => item.id === productoOriginal.id);
-            if (itemComprado) {
-                return { 
-                    ...productoOriginal, 
-                    stock: productoOriginal.stock - itemComprado.cantidad 
-                };
-            }
-            return productoOriginal;
-        });
-        setCatalogo(nuevoCatalogo);
-
-        const orden = {
-            id: 'ORD-' + Date.now(),
-            fecha: new Date().toISOString(),
-            estado: 'Confirmada',
-            productos: carrito,
-            despacho: datos,
-            subtotal: resumen.subtotal,
-            descuento: resumen.descuento,
-            total: resumen.total
-        };
-
-        const nuevasOrdenes = [orden, ...ordenes];
-
-        if (!guardarCompra([], nuevasOrdenes, '')) {
-            setMensaje('No se pudo guardar la compra.');
-            return false;
-        }
-
-        setCompra({ carrito: [], ordenes: nuevasOrdenes, cupon: '' });
-        setMensaje('');
+    function guardarCupon(codigo) {
+        persistir(compraActual.current.carrito, codigo.trim().toUpperCase());
         return true;
     }
 
-    // Aplica un cupon vigente o lo retira cuando se recibe un codigo vacio.
-    function aplicarCupon(codigo) {
-        let codigoValido = '';
-
-        if (codigo.trim() !== '') {
-            const cupon = buscarCupon(codigo);
-
-            if (!cupon) {
-                setMensaje('Cupon invalido o vencido. No se cambio el descuento.');
-                return false;
-            }
-
-            codigoValido = cupon.codigo;
+    async function finalizarCompra() {
+        if (enviandoPedido.current) throw Object.assign(new Error('Ya hay un pedido en curso.'), { status: 409 });
+        enviandoPedido.current = true;
+        const pedido = compraActual.current;
+        let orden;
+        try {
+            orden = await solicitarConSesion('/orders/me', {
+                method: 'POST',
+                body: {
+                    codigoPromocion: pedido.cupon || undefined,
+                    detalles: pedido.carrito.map(({ id, cantidad }) => ({ productoId: id, cantidad })),
+                },
+            });
+        } finally {
+            enviandoPedido.current = false;
         }
-
-        if (!guardarCompra(carrito, ordenes, codigoValido)) {
-            setMensaje('No se pudo guardar el cupon.');
-            return false;
-        }
-
-        setCompra({ carrito, ordenes, cupon: codigoValido });
-        setMensaje('');
-        return true;
+        const compradas = new Map(pedido.carrito.map(({ id, cantidad }) => [id, cantidad]));
+        const actual = compraActual.current;
+        const pendientes = actual.carrito.map(({ id, cantidad }) => ({
+            id, cantidad: cantidad - (compradas.get(id) ?? 0),
+        })).filter(item => item.cantidad > 0);
+        persistir(pendientes, actual.cupon === pedido.cupon ? '' : actual.cupon);
+        recargarCatalogo();
+        return orden;
     }
+
+    const estadoCatalogo = { estado, reintentar: reintentarCatalogo };
+    const esperarCatalogo = estado !== 'listo' && compra.carrito.length > 0;
 
     return (
         <>
-            <Cabecera cantidad={cantidadProductos} />
-
-            {mensaje && (
-                <p className="alert alert-danger m-3" role="alert">
-                    {mensaje}
-                </p>
-            )}
-
+            <Cabecera cantidad={cantidadProductos} categorias={categorias} usuario={usuario}
+                cerrarSesion={() => cerrarSesion().catch(() => setMensaje('No pudimos cerrar la sesión. Intenta nuevamente.'))} />
+            {mensaje && <p className="alert alert-warning m-3" role="alert">{mensaje}</p>}
             <Routes>
-                <Route path="/" element={<Inicio />} />
-                <Route path="/catalogo" element={<Catalogo catalogo={catalogo} />} />
-
-                <Route
-                    path="/producto/:id"
-                    element={<Producto catalogo={catalogo} agregarProducto={agregarProducto} />}
-                />
-
-                <Route
-                    path="/carrito"
-                    element={
-                        <Carrito
-                            carrito={carrito}
-                            codigoCupon={compra.cupon}
-                            aplicarCupon={aplicarCupon}
-                            cambiarCantidad={cambiarCantidad}
-                            quitarProducto={quitarProducto}
-                            vaciarCarrito={vaciarCarrito}
-                        />
-                    }
-                />
-
-                <Route
-                    path="/checkout"
-                    element={
-                        <Checkout
-                            carrito={carrito}
-                            codigoCupon={compra.cupon}
-                            finalizarCompra={finalizarCompra}
-                        />
-                    }
-                />
-
-                <Route
-                    path="/ordenes"
-                    element={<MisOrdenes ordenes={ordenes} />}
-                />
-
-                <Route
-                    path="*"
-                    element={<main><h1>Pagina no encontrada</h1></main>}
-                />
+                <Route path="/" element={<Inicio productos={productos} categorias={categorias} {...estadoCatalogo} />} />
+                <Route path="/catalogo" element={<Catalogo catalogo={productos} categorias={categorias} {...estadoCatalogo} />} />
+                <Route path="/producto/:id" element={<Producto catalogo={productos} agregarProducto={agregarProducto} {...estadoCatalogo} />} />
+                <Route path="/carrito" element={esperarCatalogo ? <main><EstadoCatalogo {...estadoCatalogo} /></main> : (
+                    <Carrito carrito={carrito} codigoCupon={compra.cupon} aplicarCupon={guardarCupon}
+                        carritoValido={carritoValido} cambiarCantidad={actualizarCantidad}
+                        quitarProducto={quitarProducto} vaciarCarrito={() => persistir([], '')} />
+                )} />
+                <Route path="/checkout" element={
+                    <AccesoRequerido rol="CLIENTE">
+                        {esperarCatalogo ? <main><EstadoCatalogo {...estadoCatalogo} /></main> : (
+                            <Checkout carrito={carrito} codigoCupon={compra.cupon}
+                                carritoValido={carritoValido} finalizarCompra={finalizarCompra} />
+                        )}
+                    </AccesoRequerido>
+                } />
+                <Route path="/ordenes" element={
+                    <AccesoRequerido rol="CLIENTE">
+                        <MisOrdenes productos={productosPorId} solicitarConSesion={solicitarConSesion} />
+                    </AccesoRequerido>
+                } />
+                <Route path="/admin/categorias" element={
+                    <AccesoRequerido rol="ADMIN">
+                        <CategoriasAdmin onCambio={recargarCatalogo} />
+                    </AccesoRequerido>
+                } />
+                <Route path="*" element={<main><h1>Página no encontrada</h1></main>} />
             </Routes>
-
             <PieDePagina />
         </>
     );

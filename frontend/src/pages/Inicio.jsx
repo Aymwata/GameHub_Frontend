@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Carousel } from 'bootstrap';
 
-import { productos } from '../data/productos.js';
-import { categorias } from '../data/categorias.js';
+import EstadoCatalogo from '../components/EstadoCatalogo.jsx';
 import TarjetaProducto from '../components/TarjetaProducto.jsx';
 
 // Define las imágenes del carrusel original.
@@ -15,7 +14,7 @@ const banners = [
 ];
 
 // Presenta el carrusel, los productos destacados y las categorías.
-function Inicio() {
+function Inicio({ productos = [], categorias = [], estado, reintentar }) {
     const destacados = productos
         .filter(producto => producto.stock > 0)
         .slice(0, 4);
@@ -48,7 +47,7 @@ function Inicio() {
         return () => {
             window.removeEventListener('resize', comprobarEspacio);
         };
-    }, []);
+    }, [productos]);
 
     // Desplaza la fila aproximadamente el ancho de una tarjeta.
     function deslizarDestacados(direccion) {
@@ -157,6 +156,8 @@ function Inicio() {
                     )}
                 </div>
 
+                <EstadoCatalogo estado={estado} reintentar={reintentar} />
+                {estado === 'listo' && destacados.length === 0 && <p>Por ahora no hay productos destacados con stock.</p>}
                 <div className="fila-destacados" ref={filaDestacados}>
                     {destacados.map(producto => (
                         <TarjetaProducto

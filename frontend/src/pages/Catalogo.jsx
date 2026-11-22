@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { categorias } from '../data/categorias.js';
+import EstadoCatalogo from '../components/EstadoCatalogo.jsx';
 import TarjetaProducto from '../components/TarjetaProducto.jsx';
 
-// metodo para que se descuente el stock de productos
-function Catalogo({ catalogo }) {
+function Catalogo({ catalogo, categorias = [], estado = 'listo', reintentar }) {
   const [parametros, setParametros] = useSearchParams();
 
   const [marca, setMarca] = useState('');
@@ -14,6 +13,7 @@ function Catalogo({ catalogo }) {
 
   const busqueda = parametros.get('buscar') || '';
   const categoria = parametros.get('categoria') || '';
+  const marcas = [...new Map(catalogo.map(producto => [producto.marca.toLowerCase(), producto.marca]))];
 
   // Actualiza la busqueda y conserva la categoria seleccionada.
   function cambiarBusqueda(evento) {
@@ -97,6 +97,8 @@ function Catalogo({ catalogo }) {
     <main className="pagina-catalogo">
       <h1>Catalogo de productos</h1>
 
+      <EstadoCatalogo estado={estado} reintentar={reintentar} />
+      {estado === 'listo' && (
       <div className="distribucion-catalogo">
         {/* Agrupa los controles para filtrar los productos. */}
         <aside className="filtros-catalogo" aria-label="Filtros del catalogo">
@@ -135,10 +137,7 @@ function Catalogo({ catalogo }) {
               onChange={(evento) => setMarca(evento.target.value)}
             >
               <option value="">Todas las marcas</option>
-              <option value="samsung">Samsung</option>
-              <option value="lenovo">Lenovo</option>
-              <option value="msi">MSI</option>
-              <option value="esgaming">Esgaming</option>
+              {marcas.map(([valor, nombre]) => <option key={valor} value={valor}>{nombre}</option>)}
             </select>
           </div>
 
@@ -227,6 +226,7 @@ function Catalogo({ catalogo }) {
           )}
         </section>
       </div>
+      )}
     </main>
   );
 }

@@ -1,5 +1,5 @@
 // Presenta los mismos importes en el carrito y el checkout.
-function ResumenCompra({ resumen }) {
+function ResumenCompra({ resumen, estimado = false }) {
     return (
         <dl className="resumen-precios">
             <div>
@@ -7,13 +7,13 @@ function ResumenCompra({ resumen }) {
                 <dd>${resumen.subtotal.toLocaleString('es-CL')}</dd>
             </div>
 
-            <div>
+            {!estimado && <div>
                 <dt>Descuento</dt>
                 <dd>−${resumen.descuento.toLocaleString('es-CL')}</dd>
-            </div>
+            </div>}
 
             <div className="resumen-total">
-                <dt>Total</dt>
+                <dt>{estimado ? 'Total estimado' : 'Total'}</dt>
                 <dd>${resumen.total.toLocaleString('es-CL')}</dd>
             </div>
         </dl>

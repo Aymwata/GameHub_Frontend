@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import ImagenProducto from './ImagenProducto.jsx';
 
 // Presenta un producto del catálogo.
 function TarjetaProducto({ producto, destacado = false }) {
@@ -11,11 +12,7 @@ function TarjetaProducto({ producto, destacado = false }) {
             }
         >
             <div className="card h-100">
-                <img
-                    src={'/' + producto.imagen}
-                    alt={producto.nombre}
-                    className="producto-imagen"
-                />
+                <ImagenProducto producto={producto} className="producto-imagen" />
 
                 <div className="card-body d-flex flex-column">
                     <h2 className="h5">{producto.nombre}</h2>

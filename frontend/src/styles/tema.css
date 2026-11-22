@@ -101,6 +101,13 @@ h1,
     object-fit: contain;
 }
 
+.producto-sin-imagen {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: 10rem;
+}
+
 .detalle-imagen {
     width: 100%;
     max-height: 450px;

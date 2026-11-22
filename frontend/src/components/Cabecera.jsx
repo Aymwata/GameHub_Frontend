@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { categorias } from '../data/categorias.js';
 
 // Muestra el logo, las categorías, el buscador y los accesos de la tienda.
-function Cabecera({ cantidad }) {
+function Cabecera({ cantidad, categorias = [], usuario, cerrarSesion }) {
     const [busqueda, setBusqueda] = useState('');
     const navegar = useNavigate();
 
@@ -73,11 +72,18 @@ function Cabecera({ cantidad }) {
                 </form>
 
                 <nav className="navegacion" aria-label="Navegación principal">
-                    <Link to="/ordenes">Mis órdenes</Link>
+                    {usuario?.rol === 'ADMIN' ? <Link to="/admin/categorias">Gestionar categorías</Link> : (
+                        <Link to="/ordenes">Mis órdenes</Link>
+                    )}
 
                     <Link to="/carrito" className="enlace-carrito">
                         Carrito ({cantidad})
                     </Link>
+                    {usuario && (
+                        <button type="button" className="btn btn-outline-light btn-sm" onClick={cerrarSesion}>
+                            Cerrar sesión
+                        </button>
+                    )}
                 </nav>
             </div>
         </header>

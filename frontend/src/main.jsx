@@ -4,10 +4,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
 import './styles/tema.css';
 import App from './App.jsx';
+import ProveedorSesion from './components/ProveedorSesion.jsx';
 
 // Inicia React y habilita la navegación entre páginas.
 createRoot(document.getElementById('root')).render(
     <BrowserRouter>
-        <App />
+        <ProveedorSesion>
+            <App />
+        </ProveedorSesion>
     </BrowserRouter>
 );
