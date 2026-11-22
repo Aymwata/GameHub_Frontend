@@ -101,6 +101,24 @@ h1,
     object-fit: contain;
 }
 
+.producto-sin-imagen {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: 10rem;
+}
+
+.orden-item-imagen,
+.producto-sin-imagen.orden-item-imagen {
+    width: 4rem;
+    height: 4rem;
+    min-height: 0;
+    flex: 0 0 4rem;
+    object-fit: cover;
+    font-size: 0.65rem;
+    text-align: center;
+}
+
 .detalle-imagen {
     width: 100%;
     max-height: 450px;

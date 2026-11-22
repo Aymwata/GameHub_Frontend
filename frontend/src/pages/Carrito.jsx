@@ -8,6 +8,7 @@ function Carrito({
     carrito,
     codigoCupon,
     aplicarCupon,
+    carritoValido = true,
     cambiarCantidad,
     quitarProducto,
     vaciarCarrito
@@ -15,7 +16,7 @@ function Carrito({
     const [codigo, setCodigo] = useState(codigoCupon);
     const [aviso, setAviso] = useState('');
 
-    const resumen = calcularResumen(carrito, codigoCupon);
+    const resumen = calcularResumen(carrito);
 
     // Solicita aplicar el codigo escrito en el formulario.
     function aplicarCodigo(evento) {
@@ -23,7 +24,7 @@ function Carrito({
         setAviso('');
 
         if (aplicarCupon(codigo)) {
-            setAviso('Cupón guardado correctamente.');
+            setAviso('Código guardado para validar al confirmar.');
         }
     }
 
@@ -131,10 +132,10 @@ function Carrito({
                                                         type="button"
                                                         className="btn btn-outline-secondary"
                                                         aria-label={'Reducir cantidad de ' + producto.nombre}
-                                                        disabled={producto.cantidad === 1}
+                                                        disabled={producto.cantidad === 1 || producto.stock === 0}
                                                         onClick={() => cambiarCantidad(
                                                             producto.id,
-                                                            producto.cantidad - 1
+                                                            Math.min(producto.cantidad - 1, producto.stock)
                                                         )}
                                                     >
                                                         −
@@ -194,18 +195,18 @@ function Carrito({
                                 <input
                                     id="cupon"
                                     className="form-control"
-                                    placeholder="Ej: GAME20"
+                                    maxLength={50}
                                     value={codigo}
                                     onChange={evento => setCodigo(evento.target.value)}
                                 />
 
                                 <button type="submit" className="btn btn-success">
-                                    Aplicar
+                                    Guardar
                                 </button>
                             </div>
 
                             <p className="small text-muted mt-2 mb-0">
-                                Prueba GAME20: 20 %, máximo $100.000, vigente durante 2026.
+                                El descuento se calcula en el servidor al confirmar el pedido.
                             </p>
                         </form>
 
@@ -236,12 +237,12 @@ function Carrito({
                             )}
                         </div>
 
-                        <ResumenCompra resumen={resumen} />
+                        <ResumenCompra resumen={resumen} estimado />
 
                         <div className="acciones-carrito d-grid gap-2 mt-4">
-                            <Link to="/checkout" className="btn btn-success fw-semibold">
-                                Proceder al pago
-                            </Link>
+                            {carritoValido ? (
+                                <Link to="/checkout" className="btn btn-success fw-semibold">Revisar pedido</Link>
+                            ) : <p role="alert">Ajusta las cantidades o retira los productos agotados.</p>}
 
                             <button
                                 type="button"

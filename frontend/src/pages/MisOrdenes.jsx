@@ -1,319 +1,125 @@
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import ImagenProducto from '../components/ImagenProducto.jsx';
 
-// Normaliza el texto del estado para evitar que quede todo en minusculas.
-function formatearEstado(estado) {
-    if (!estado) {
-        return 'Pendiente de Aprobacion';
-    }
+const estadosOrden = {
+    PENDIENTE: { texto: 'Pendiente de pago', estilo: 'bg-warning-subtle text-dark border-warning-subtle' },
+    PAGADA: { texto: 'Pagada', estilo: 'bg-success-subtle text-success border-success-subtle' },
+    CANCELADA: { texto: 'Cancelada', estilo: 'bg-danger-subtle text-danger border-danger-subtle' },
+};
 
-    const limpio = String(estado)
-        .trim()
-        .replace(/[_-]+/g, ' ')
-        .toLowerCase();
+const moneda = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' });
 
-    if (limpio === 'aprobado simulado') {
-        return 'Aprobado Simulado';
-    }
-
-    if (limpio === 'pendiente de aprobacion' || limpio === 'pendiente de aprobación') {
-        return 'Pendiente de Aprobacion';
-    }
-
-    return limpio
-        .split(/\s+/)
-        .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))
-        .join(' ');
+function estadoVisual(estado) {
+    const clave = estado === 'PAID' ? 'PAGADA' : estado === 'CANCELED' ? 'CANCELADA' : estado;
+    return estadosOrden[clave] ?? { texto: estado, estilo: 'bg-secondary-subtle text-dark border-secondary-subtle' };
 }
 
-// Define el color del badge segun el estado de la orden.
-function claseBadgeEstado(estadoTexto) {
-    const clave = estadoTexto.toLowerCase();
-
-    if (clave.includes('aprobado')) {
-        return 'bg-success-subtle text-success border border-success-subtle';
-    }
-
-    if (clave.includes('pendiente')) {
-        return 'bg-warning-subtle text-dark border border-warning-subtle';
-    }
-
-    return 'bg-secondary-subtle text-dark border border-secondary-subtle';
-}
-
-// Obtiene una ruta de imagen valida para cada producto dentro de la orden.
-function obtenerImagenItem(item) {
-    if (!item) {
-        return '';
-    }
-
+function TarjetaOrden({ orden, productos, usuario }) {
+    const estado = estadoVisual(orden.estado);
     return (
-        item.imagen ||
-        item.img ||
-        item.image ||
-        item.foto ||
-        item.producto?.imagen ||
-        ''
+        <article className="orden-card card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div className="card-header bg-white border-bottom py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div className="d-flex align-items-center flex-wrap gap-2">
+                    <h2 className="h6 fw-bold mb-0">Orden #{orden.id}</h2>
+                    {orden.fechaCreacion && <time className="small text-muted" dateTime={orden.fechaCreacion}>
+                        {new Date(orden.fechaCreacion).toLocaleString('es-CL')}
+                    </time>}
+                </div>
+                <span className={'badge rounded-pill px-3 py-2 border ' + estado.estilo}>{estado.texto}</span>
+            </div>
+
+            <div className="card-body p-4">
+                {orden.detalles.length === 0 && <p className="text-muted">Esta orden no tiene detalle de productos.</p>}
+                <ul className="list-unstyled d-grid gap-3 mb-0">
+                    {orden.detalles.map(detalle => {
+                        const producto = productos.get(detalle.productoId) ?? { nombre: 'Producto #' + detalle.productoId };
+                        return (
+                            <li key={detalle.id} className="d-flex flex-wrap justify-content-between align-items-center gap-3 pb-3 border-bottom">
+                                <div className="d-flex align-items-center gap-3">
+                                    <ImagenProducto producto={producto} className="orden-item-imagen rounded-3 border bg-light" />
+                                    <div>
+                                        <div className="fw-semibold">{producto.nombre}{' × '}{detalle.cantidad}</div>
+                                        <small className="text-muted">{moneda.format(detalle.precioUnitario)} por unidad</small>
+                                    </div>
+                                </div>
+                                <span className="fw-bold text-nowrap">{moneda.format(detalle.precioUnitario * detalle.cantidad)}</span>
+                            </li>
+                        );
+                    })}
+                </ul>
+
+                {usuario && (
+                    <div className="bg-light rounded-3 border p-3 mt-3 mb-2 small">
+                        <h3 className="h6 fw-bold">Detalle del pedido</h3>
+                        <div className="row g-2">
+                            <div className="col-md-6"><span className="text-muted">Nombre </span><strong>{usuario.nombre}</strong></div>
+                            <div className="col-md-6 text-break"><span className="text-muted">Correo </span><strong>{usuario.email}</strong></div>
+                        </div>
+                    </div>
+                )}
+
+                {orden.descuento > 0 && (
+                    <div className="d-flex justify-content-between gap-3 small mt-3">
+                        <span>Descuento {orden.codigoPromocion}</span>
+                        <span>−{moneda.format(orden.descuento)}</span>
+                    </div>
+                )}
+                <div className="d-flex align-items-center justify-content-between gap-3 pt-3 mt-2">
+                    <span className="text-muted fw-medium">Total de la orden</span>
+                    <span className="fs-5 fw-bold text-success">{moneda.format(orden.total)}</span>
+                </div>
+            </div>
+        </article>
     );
 }
 
-function obtenerDatoOrden(orden, claves) {
-    if (!orden || typeof orden !== 'object') {
-        return '';
-    }
+export default function MisOrdenes({ productos, usuario, solicitarConSesion }) {
+    const { state } = useLocation();
+    const [peticion, setPeticion] = useState({ estado: 'cargando', ordenes: [] });
+    const [revision, setRevision] = useState(0);
 
-    const contenedores = [
-        orden,
-        orden.datos,
-        orden.cliente,
-        orden.comprador,
-        orden.envio,
-        orden.despacho,
-        orden.contacto,
-        orden.usuario,
-        orden.formulario
-    ].filter(obj => obj && typeof obj === 'object');
-
-    for (const obj of contenedores) {
-        for (const clave of claves) {
-            const valor = obj[clave];
-            if (valor !== undefined && valor !== null && String(valor).trim() !== '') {
-                return String(valor).trim();
-            }
-        }
-    }
-
-    return '';
-}
-
-function formatearPago(pago) {
-    if (!pago) {
-        return 'No registrado';
-    }
-
-    const texto = String(pago).trim();
-    return texto.charAt(0).toUpperCase() + texto.slice(1);
-}
-
-// Muestra el historial de ordenes realizadas por el usuario.
-function MisOrdenes({ ordenes = [] }) {
-    if (!Array.isArray(ordenes) || ordenes.length === 0) {
-        return (
-            <main className="container py-5">
-                <h1 className="h2 fw-bold mb-4">Mis ordenes</h1>
-
-                <section className="card border-0 shadow-sm rounded-4 p-5 text-center">
-                    <h2 className="h4 fw-bold mb-2">Aun no tienes ordenes registradas</h2>
-                    <p className="text-muted mb-4">
-                        Cuando completes una compra en GameHub, aparecera aqui con su detalle.
-                    </p>
-                    <div>
-                        <Link to="/catalogo" className="btn btn-success px-4">
-                            Ir al catalogo
-                        </Link>
-                    </div>
-                </section>
-            </main>
-        );
-    }
+    useEffect(() => {
+        const controlador = new AbortController();
+        solicitarConSesion('/orders/me', { signal: controlador.signal }).then(ordenes => {
+            if (!controlador.signal.aborted) setPeticion({ estado: 'listo', ordenes });
+        }).catch(() => {
+            if (!controlador.signal.aborted) setPeticion({ estado: 'error', ordenes: [] });
+        });
+        return () => controlador.abort();
+    }, [solicitarConSesion, revision]);
 
     return (
         <main className="container py-4">
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
                 <div>
-                    <h1 className="h2 fw-bold mb-1">Mis ordenes</h1>
-                    <p className="text-muted mb-0">
-                        Revisa el estado y los productos de tus compras anteriores.
-                    </p>
+                    <h1 className="h2 fw-bold mb-1">Mis órdenes</h1>
+                    <p className="text-muted mb-0">Revisa el estado y los productos de tus compras anteriores.</p>
                 </div>
-
-                <Link to="/catalogo" className="btn btn-outline-success btn-sm">
-                    Seguir comprando
-                </Link>
+                <Link to="/catalogo" className="btn btn-outline-success btn-sm">Seguir comprando</Link>
             </div>
-
+            {state?.ordenCreada && <p className="alert alert-success" role="status">Se registró la orden #{state.ordenCreada}.</p>}
+            {peticion.estado === 'cargando' && <p role="status">Cargando órdenes…</p>}
+            {peticion.estado === 'error' && (
+                <div className="alert alert-danger" role="alert">
+                    <p>No pudimos consultar tus órdenes.</p>
+                    <button type="button" className="btn btn-outline-dark" onClick={() => {
+                        setPeticion({ estado: 'cargando', ordenes: [] });
+                        setRevision(actual => actual + 1);
+                    }}>Reintentar</button>
+                </div>
+            )}
+            {peticion.estado === 'listo' && peticion.ordenes.length === 0 && (
+                <section className="card border-0 shadow-sm rounded-4 p-5 text-center">
+                    <h2 className="h4 fw-bold">Todavía no tienes órdenes.</h2>
+                    <div><Link to="/catalogo" className="btn btn-success mt-2">Explorar catálogo</Link></div>
+                </section>
+            )}
             <div className="d-grid gap-4">
-                {ordenes.map((orden, index) => {
-                    const estadoTexto = formatearEstado(orden.estado);
-                    const items = Array.isArray(orden.items)
-                        ? orden.items
-                        : Array.isArray(orden.productos)
-                            ? orden.productos
-                            : [];
-                    const totalOrden = Number(orden.total ?? orden.resumen?.total ?? 0);
-
-                    const nombreCliente = obtenerDatoOrden(orden, [
-                        'nombre',
-                        'nombreCompleto',
-                        'nombreCliente'
-                    ]) || 'No registrado';
-                    const correoCliente = obtenerDatoOrden(orden, [
-                        'correo',
-                        'email',
-                        'correoElectronico'
-                    ]) || 'No registrado';
-                    const telefonoCliente = obtenerDatoOrden(orden, [
-                        'telefono',
-                        'celular',
-                        'fono'
-                    ]) || 'No registrado';
-                    const regionCliente = obtenerDatoOrden(orden, [
-                        'region'
-                    ]) || 'No registrado';
-                    const comunaCliente = obtenerDatoOrden(orden, [
-                        'comuna',
-                        'ciudad'
-                    ]) || 'No registrado';
-                    const direccionCliente = obtenerDatoOrden(orden, [
-                        'direccion',
-                        'direccionEnvio',
-                        'calle'
-                    ]) || 'No registrado';
-                    const metodoPago = formatearPago(
-                        obtenerDatoOrden(orden, ['pago', 'metodoPago', 'medioPago'])
-                    );
-
-                    return (
-                        <article
-                            key={orden.id || orden.codigo || index}
-                            className="orden-card card border-0 shadow-sm rounded-4 overflow-hidden"
-                        >
-                            <div className="card-header bg-white border-bottom py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                                <div>
-                                    <span className="fw-bold text-dark me-2">
-                                        Orden #{orden.id || orden.codigo || index + 1}
-                                    </span>
-                                    {orden.fecha && (
-                                        <small className="text-muted">
-                                            {orden.fecha}
-                                        </small>
-                                    )}
-                                </div>
-
-                                <span className={`badge rounded-pill px-3 py-2 ${claseBadgeEstado(estadoTexto)}`}>
-                                    {estadoTexto}
-                                </span>
-                            </div>
-
-                            <div className="card-body p-4">
-                                {items.length > 0 ? (
-                                    <div className="d-grid gap-3">
-                                        {items.map((item, itemIndex) => {
-                                            const imagenUrl = obtenerImagenItem(item);
-                                            const nombreItem = item.nombre || item.titulo || 'Producto';
-                                            const cantidadItem = Number(item.cantidad || 1);
-                                            const precioUnitario = Number(item.precio || 0);
-                                            const subtotalItem = Number(
-                                                item.subtotal ?? precioUnitario * cantidadItem
-                                            );
-
-                                            return (
-                                                <div
-                                                    key={item.id || itemIndex}
-                                                    className="d-flex flex-wrap justify-content-between align-items-center gap-3 pb-3 border-bottom"
-                                                >
-                                                    <div className="d-flex align-items-center gap-3">
-                                                        {imagenUrl ? (
-                                                            <img
-                                                                src={imagenUrl}
-                                                                alt={nombreItem}
-                                                                className="rounded-3 border bg-light"
-                                                                style={{
-                                                                    width: '64px',
-                                                                    height: '64px',
-                                                                    objectFit: 'cover'
-                                                                }}
-                                                            />
-                                                        ) : (
-                                                            <div
-                                                                className="rounded-3 border bg-light d-flex align-items-center justify-content-center text-muted small"
-                                                                style={{
-                                                                    width: '64px',
-                                                                    height: '64px'
-                                                                }}
-                                                            >
-                                                                Sin foto
-                                                            </div>
-                                                        )}
-
-                                                        <div>
-                                                            <div className="fw-semibold text-dark">
-                                                                {nombreItem}
-                                                            </div>
-                                                            <small className="text-muted d-block">
-                                                                Cantidad: {cantidadItem} · Unitario: ${precioUnitario.toLocaleString('es-CL')}
-                                                            </small>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="fw-bold text-dark text-nowrap">
-                                                        ${subtotalItem.toLocaleString('es-CL')}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                ) : (
-                                    <p className="text-muted mb-0">
-                                        Esta orden no tiene detalle de productos.
-                                    </p>
-                                )}
-
-                                <div className="bg-light rounded-3 border p-3 mt-3 mb-2 small">
-                                    <div className="fw-bold text-dark mb-2">
-                                        Detalle del pedido
-                                    </div>
-
-                                    <div className="row g-2">
-                                        <div className="col-md-6">
-                                            <span className="text-muted">Nombre: </span>
-                                            <span className="fw-semibold text-dark">{nombreCliente}</span>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <span className="text-muted">Correo: </span>
-                                            <span className="fw-semibold text-dark">{correoCliente}</span>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <span className="text-muted">Telefono: </span>
-                                            <span className="fw-semibold text-dark">{telefonoCliente}</span>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <span className="text-muted">Metodo de pago: </span>
-                                            <span className="fw-semibold text-dark">{metodoPago}</span>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <span className="text-muted">Region: </span>
-                                            <span className="fw-semibold text-dark">{regionCliente}</span>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <span className="text-muted">Comuna: </span>
-                                            <span className="fw-semibold text-dark">{comunaCliente}</span>
-                                        </div>
-
-                                        <div className="col-12">
-                                            <span className="text-muted">Direccion: </span>
-                                            <span className="fw-semibold text-dark">{direccionCliente}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="d-flex justify-content-between align-items-center pt-3 mt-2">
-                                    <span className="text-muted fw-medium">Total de la orden</span>
-                                    <span className="fs-5 fw-bold text-success">
-                                        ${totalOrden.toLocaleString('es-CL')}
-                                    </span>
-                                </div>
-                            </div>
-                        </article>
-                    );
-                })}
+                {[...peticion.ordenes].sort((a, b) => b.id - a.id).map(orden => (
+                    <TarjetaOrden key={orden.id} orden={orden} productos={productos} usuario={usuario} />
+                ))}
             </div>
         </main>
     );
 }
-
-export default MisOrdenes;

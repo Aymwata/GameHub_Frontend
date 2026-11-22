@@ -1,372 +1,168 @@
-import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { categorias } from '../data/categorias.js';
-import { obtenerHeadersAuth } from '../services/autenticacion.js';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import EstadoCatalogo from '../components/EstadoCatalogo.jsx';
+import { useSesion } from '../services/sesion.js';
 
-const API_PRODUCTOS = 'http://localhost:8080/api/v1/productos';
+const productoInicial = { nombre: '', marca: '', modelo: '', precio: '', categoriaId: '', descripcion: '' };
 
-function Admin({ sesion, catalogo, setCatalogo, ordenes }) {
+export default function Admin({ catalogo, categorias, estadoCatalogo, onCambio }) {
+    const { solicitarConSesion } = useSesion();
+    const [vista, setVista] = useState('productos');
+    const [producto, setProducto] = useState(productoInicial);
+    const [registroStock, setRegistroStock] = useState({ productId: '', quantity: '', location: '' });
+    const [aviso, setAviso] = useState(null);
+    const [guardando, setGuardando] = useState(false);
 
-    const [vistaActiva, setVistaActiva] = useState('productos');
-    const [editandoId, setEditandoId] = useState(null);
-    const [mensaje, setMensaje] = useState('');
-
-    const [nombre, setNombre] = useState('');
-    const [precio, setPrecio] = useState('');
-    const [stock, setStock] = useState('');
-    const [categoria, setCategoria] = useState('perifericos');
-    const [marca, setMarca] = useState('samsung');
-    const [imagen, setImagen] = useState('assets/images/monitorSamsung.jpg');
-    const [descripcion, setDescripcion] = useState('');
-
-
-    if (!sesion || sesion.rol !== 'ADMIN') {
-        return <Navigate to="/login" replace />;
-    }
-
-    function limpiarFormulario() {
-        setEditandoId(null);
-        setNombre('');
-        setPrecio('');
-        setStock('');
-        setCategoria('perifericos');
-        setMarca('samsung');
-        setImagen('assets/images/monitorSamsung.jpg');
-        setDescripcion('');
-    }
-
-    function cargarProductoParaEditar(producto) {
-        setEditandoId(producto.id);
-        setNombre(producto.nombre);
-        setPrecio(String(producto.precio));
-        setStock(String(producto.stock));
-        setCategoria(producto.categoria);
-        setMarca(producto.marca);
-        setImagen(producto.imagen);
-        setDescripcion(producto.descripcion || '');
-    }
-
-    async function guardarProducto(evento) {
-        evento.preventDefault();
-        setMensaje('');
-
-        const datosProducto = {
-            nombre: nombre.trim(),
-            precio: Number(precio),
-            stock: Number(stock),
-            categoria,
-            marca,
-            imagen: imagen.trim(),
-            descripcion: descripcion.trim()
-        };
-
-        if (!datosProducto.nombre || datosProducto.precio <= 0) {
-            setMensaje('Completa el nombre y un precio válido.');
-            return;
-        }
-
+    async function guardar(ruta, body, mensaje, limpiar) {
+        setGuardando(true);
+        setAviso(null);
         try {
-            if (editandoId) {
-
-                await fetch(`${API_PRODUCTOS}/${editandoId}`, {
-                    method: 'PUT',
-                    headers: obtenerHeadersAuth(),
-                    body: JSON.stringify(datosProducto)
-                }).catch(() => null);
-
-                setCatalogo(
-                    catalogo.map(item =>
-                        item.id === editandoId ? { ...item, ...datosProducto } : item
-                    )
-                );
-                setMensaje('Producto actualizado correctamente.');
-            } else {
-
-                const respuesta = await fetch(API_PRODUCTOS, {
-                    method: 'POST',
-                    headers: obtenerHeadersAuth(),
-                    body: JSON.stringify(datosProducto)
-                }).catch(() => null);
-
-                const creado = respuesta && respuesta.ok
-                    ? await respuesta.json()
-                    : { ...datosProducto, id: Date.now() };
-
-                setCatalogo([...catalogo, creado]);
-                setMensaje('Producto agregado al catálogo.');
-            }
-
-            limpiarFormulario();
-        } catch {
-            setMensaje('Error al guardar el producto.');
+            await solicitarConSesion(ruta, { method: 'POST', body });
+            limpiar();
+            onCambio();
+            setAviso({ tipo: 'success', mensaje });
+        } catch (error) {
+            setAviso({ tipo: 'danger', mensaje: error.status ? error.message : 'No pudimos completar la operación.' });
+        } finally {
+            setGuardando(false);
         }
     }
 
-    async function eliminarProducto(id) {
-        await fetch(`${API_PRODUCTOS}/${id}`, {
-            method: 'DELETE',
-            headers: obtenerHeadersAuth()
-        }).catch(() => null);
+    function crearProducto(evento) {
+        evento.preventDefault();
+        guardar('/products', {
+            nombre: producto.nombre.trim(),
+            marca: producto.marca.trim(),
+            modelo: producto.modelo.trim(),
+            descripcion: producto.descripcion.trim(),
+            precio: Number(producto.precio),
+            categoriaId: Number(producto.categoriaId),
+        }, 'Producto agregado al catálogo.', () => setProducto(productoInicial));
+    }
 
-        setCatalogo(catalogo.filter(item => item.id !== id));
-        setMensaje('Producto eliminado.');
+    function ingresarStock(evento) {
+        evento.preventDefault();
+        guardar('/inventory/setup', {
+            productId: Number(registroStock.productId),
+            quantity: Number(registroStock.quantity),
+            location: registroStock.location.trim(),
+        }, 'Stock registrado.', () => setRegistroStock(actual => ({ ...actual, quantity: '' })));
     }
 
     return (
-        <main>
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-                <h1 className="mb-0">Panel de Administración</h1>
-
-                <div className="btn-group" role="group" aria-label="Secciones de administración">
-                    <button
-                        type="button"
-                        className={`btn ${vistaActiva === 'productos' ? 'btn-success' : 'btn-outline-success'}`}
-                        onClick={() => setVistaActiva('productos')}
-                    >
-                        Productos ({catalogo.length})
-                    </button>
-                    <button
-                        type="button"
-                        className={`btn ${vistaActiva === 'ordenes' ? 'btn-success' : 'btn-outline-success'}`}
-                        onClick={() => setVistaActiva('ordenes')}
-                    >
-                        Órdenes ({ordenes.length})
-                    </button>
+        <main className="container py-4">
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <h1 className="h2 mb-0">Panel de Administración</h1>
+                <div className="d-flex flex-wrap gap-2" aria-label="Secciones de administración">
+                    <button className="btn btn-outline-success" type="button" aria-pressed={vista === 'productos'}
+                        onClick={() => setVista('productos')}>Productos</button>
+                    <button className="btn btn-outline-success" type="button" aria-pressed={vista === 'ordenes'}
+                        onClick={() => setVista('ordenes')}>Órdenes</button>
+                    <Link className="btn btn-outline-success" to="/admin/categorias">Gestionar categorías</Link>
                 </div>
             </div>
 
-            {mensaje && (
-                <div className="alert alert-success" role="status">
-                    {mensaje}
-                </div>
-            )}
-
-            {vistaActiva === 'productos' && (
+            {vista === 'ordenes' ? <OrdenesAdmin solicitarConSesion={solicitarConSesion} /> : (
                 <>
-                    {/* Formulario para Crear / Editar Producto */}
-                    <section className="card p-4 mb-4">
-                        <h2 className="h4 mb-3">
-                            {editandoId ? 'Editar producto' : 'Agregar nuevo producto'}
-                        </h2>
-
-                        <form onSubmit={guardarProducto} className="row g-3">
-                            <div className="col-md-6">
-                                <label htmlFor="adm-nombre" className="form-label fw-bold">
-                                    Nombre del producto
-                                </label>
-                                <input
-                                    id="adm-nombre"
-                                    type="text"
-                                    className="form-control"
-                                    value={nombre}
-                                    onChange={e => setNombre(e.target.value)}
-                                    required
-                                />
-                            </div>
-
-                            <div className="col-md-3">
-                                <label htmlFor="adm-precio" className="form-label fw-bold">
-                                    Precio (CLP)
-                                </label>
-                                <input
-                                    id="adm-precio"
-                                    type="number"
-                                    min="1"
-                                    className="form-control"
-                                    value={precio}
-                                    onChange={e => setPrecio(e.target.value)}
-                                    required
-                                />
-                            </div>
-
-                            <div className="col-md-3">
-                                <label htmlFor="adm-stock" className="form-label fw-bold">
-                                    Stock
-                                </label>
-                                <input
-                                    id="adm-stock"
-                                    type="number"
-                                    min="0"
-                                    className="form-control"
-                                    value={stock}
-                                    onChange={e => setStock(e.target.value)}
-                                    required
-                                />
-                            </div>
-
-                            <div className="col-md-4">
-                                <label htmlFor="adm-categoria" className="form-label fw-bold">
-                                    Categoría
-                                </label>
-                                <select
-                                    id="adm-categoria"
-                                    className="form-select"
-                                    value={categoria}
-                                    onChange={e => setCategoria(e.target.value)}
-                                >
-                                    {categorias.map(cat => (
-                                        <option key={cat.id} value={cat.id}>
-                                            {cat.nombre}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="col-md-4">
-                                <label htmlFor="adm-marca" className="form-label fw-bold">
-                                    Marca
-                                </label>
-                                <select
-                                    id="adm-marca"
-                                    className="form-select"
-                                    value={marca}
-                                    onChange={e => setMarca(e.target.value)}
-                                >
-                                    <option value="samsung">Samsung</option>
-                                    <option value="lenovo">Lenovo</option>
-                                    <option value="msi">MSI</option>
-                                    <option value="esgaming">Esgaming</option>
-                                </select>
-                            </div>
-
-                            <div className="col-md-4">
-                                <label htmlFor="adm-imagen" className="form-label fw-bold">
-                                    Ruta de imagen
-                                </label>
-                                <input
-                                    id="adm-imagen"
-                                    type="text"
-                                    className="form-control"
-                                    value={imagen}
-                                    onChange={e => setImagen(e.target.value)}
-                                />
-                            </div>
-
-                            <div className="col-12">
-                                <label htmlFor="adm-descripcion" className="form-label fw-bold">
-                                    Descripción
-                                </label>
-                                <textarea
-                                    id="adm-descripcion"
-                                    className="form-control"
-                                    rows="2"
-                                    value={descripcion}
-                                    onChange={e => setDescripcion(e.target.value)}
-                                />
-                            </div>
-
-                            <div className="col-12 d-flex gap-2">
-                                <button type="submit" className="btn btn-success">
-                                    {editandoId ? 'Guardar cambios' : 'Crear producto'}
-                                </button>
-                                {editandoId && (
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline-secondary"
-                                        onClick={limpiarFormulario}
-                                    >
-                                        Cancelar edición
-                                    </button>
-                                )}
-                            </div>
-                        </form>
-                    </section>
-
-                    {/* Tabla de Inventario */}
-                    <div className="table-responsive">
-                        <table className="table table-bordered align-middle">
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Producto</th>
-                                <th>Categoría</th>
-                                <th>Precio</th>
-                                <th>Stock</th>
-                                <th>Acciones</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {catalogo.map(producto => (
-                                <tr key={producto.id}>
-                                    <td>{producto.id}</td>
-                                    <td>{producto.nombre}</td>
-                                    <td className="text-capitalize">{producto.categoria}</td>
-                                    <td>${producto.precio.toLocaleString('es-CL')}</td>
-                                    <td>
-                                            <span
-                                                className={`badge ${
-                                                    producto.stock === 0
-                                                        ? 'bg-danger'
-                                                        : producto.stock <= 5
-                                                            ? 'bg-warning text-dark'
-                                                            : 'bg-success'
-                                                }`}
-                                            >
-                                                {producto.stock} un.
-                                            </span>
-                                    </td>
-                                    <td>
-                                        <div className="d-flex gap-2">
-                                            <button
-                                                type="button"
-                                                className="btn btn-sm btn-outline-success"
-                                                onClick={() => cargarProductoParaEditar(producto)}
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="btn btn-sm btn-outline-danger"
-                                                onClick={() => eliminarProducto(producto.id)}
-                                            >
-                                                Eliminar
-                                            </button>
+                    <EstadoCatalogo {...estadoCatalogo} />
+                    {aviso && <p className={'alert alert-' + aviso.tipo} role={aviso.tipo === 'danger' ? 'alert' : 'status'}>{aviso.mensaje}</p>}
+                    <div className="row g-3 mb-4">
+                        <div className="col-lg-7">
+                            <form className="card border-0 shadow-sm rounded-4 p-4" onSubmit={crearProducto}>
+                                <h2 className="h5">Nuevo producto</h2>
+                                <fieldset className="row g-3" disabled={guardando || estadoCatalogo.estado !== 'listo'}>
+                                    {['nombre', 'marca', 'modelo', 'precio'].map(campo => (
+                                        <div key={campo} className="col-sm-6">
+                                            <label className="form-label text-capitalize" htmlFor={'producto-' + campo}>{campo}</label>
+                                            <input className="form-control" id={'producto-' + campo} required
+                                                type={campo === 'precio' ? 'number' : 'text'}
+                                                min={campo === 'precio' ? 0 : undefined} value={producto[campo]}
+                                                onChange={evento => setProducto({ ...producto, [campo]: evento.target.value })} />
                                         </div>
-                                    </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </>
-            )}
-
-            {vistaActiva === 'ordenes' && (
-                <section>
-                    {ordenes.length === 0 ? (
-                        <p className="text-muted">Aún no se han registrado ventas.</p>
-                    ) : (
-                        <div className="table-responsive">
-                            <table className="table table-bordered align-middle">
-                                <thead>
-                                <tr>
-                                    <th>Orden</th>
-                                    <th>Fecha</th>
-                                    <th>Cliente</th>
-                                    <th>Estado</th>
-                                    <th>Total</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {ordenes.map(orden => (
-                                    <tr key={orden.id}>
-                                        <td className="fw-bold">{orden.id}</td>
-                                        <td>{new Date(orden.fecha).toLocaleDateString('es-CL')}</td>
-                                        <td>{orden.despacho?.nombre || 'Cliente'}</td>
-                                        <td>{orden.estado}</td>
-                                        <td className="fw-bold">
-                                            ${orden.total.toLocaleString('es-CL')}
-                                        </td>
-                                    </tr>
-                                ))}
-                                </tbody>
-                            </table>
+                                    ))}
+                                    <div className="col-12">
+                                        <label className="form-label" htmlFor="producto-categoria">Categoría</label>
+                                        <select className="form-select" id="producto-categoria" required value={producto.categoriaId}
+                                            onChange={evento => setProducto({ ...producto, categoriaId: evento.target.value })}>
+                                            <option value="">Selecciona una categoría</option>
+                                            {categorias.map(categoria => <option key={categoria.id} value={categoria.id}>{categoria.nombre}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="col-12">
+                                        <label className="form-label" htmlFor="producto-descripcion">Descripción</label>
+                                        <textarea className="form-control" id="producto-descripcion" value={producto.descripcion}
+                                            onChange={evento => setProducto({ ...producto, descripcion: evento.target.value })} />
+                                    </div>
+                                    <div className="col-12"><button className="btn btn-success">Agregar producto</button></div>
+                                </fieldset>
+                            </form>
                         </div>
-                    )}
-                </section>
+
+                        <div className="col-lg-5">
+                            <form className="card border-0 shadow-sm rounded-4 p-4" onSubmit={ingresarStock}>
+                                <h2 className="h5">Ingresar stock</h2>
+                                <fieldset disabled={guardando || estadoCatalogo.estado !== 'listo'}>
+                                    <label className="form-label" htmlFor="stock-producto">Producto</label>
+                                    <select className="form-select mb-3" id="stock-producto" required value={registroStock.productId}
+                                        onChange={evento => setRegistroStock({ ...registroStock, productId: evento.target.value })}>
+                                        <option value="">Selecciona un producto</option>
+                                        {catalogo.map(item => <option key={item.id} value={item.id}>{item.nombre}</option>)}
+                                    </select>
+                                    <label className="form-label" htmlFor="stock-cantidad">Unidades</label>
+                                    <input className="form-control mb-3" id="stock-cantidad" type="number" min={1} required
+                                        value={registroStock.quantity} onChange={evento => setRegistroStock({ ...registroStock, quantity: evento.target.value })} />
+                                    <label className="form-label" htmlFor="stock-bodega">Bodega</label>
+                                    <input className="form-control mb-3" id="stock-bodega" minLength={3} maxLength={50} required
+                                        value={registroStock.location} onChange={evento => setRegistroStock({ ...registroStock, location: evento.target.value })} />
+                                    <button className="btn btn-success">Registrar stock</button>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+
+                    <h2 className="h5">Catálogo actual</h2>
+                    {estadoCatalogo.estado === 'listo' && catalogo.length === 0 && <p>Todavía no hay productos.</p>}
+                    <ul className="list-group">
+                        {catalogo.map(item => (
+                            <li className="list-group-item d-flex flex-wrap justify-content-between gap-2" key={item.id}>
+                                <Link to={'/producto/' + item.id}>{item.nombre}</Link>
+                                <span>{item.stock} unidades · ${item.precio.toLocaleString('es-CL')}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </>
             )}
         </main>
     );
 }
 
-export default Admin;
+function OrdenesAdmin({ solicitarConSesion }) {
+    const [ordenes, setOrdenes] = useState(null);
+    const [error, setError] = useState('');
+    useEffect(() => {
+        const controlador = new AbortController();
+        solicitarConSesion('/orders', { signal: controlador.signal })
+            .then(datos => { if (!controlador.signal.aborted) setOrdenes(datos); })
+            .catch(() => { if (!controlador.signal.aborted) setError('No pudimos consultar las órdenes.'); });
+        return () => controlador.abort();
+    }, [solicitarConSesion]);
+
+    if (error) return <p className="alert alert-danger" role="alert">{error}</p>;
+    if (!ordenes) return <p role="status">Cargando órdenes…</p>;
+    if (!ordenes.length) return <p>Todavía no hay órdenes registradas.</p>;
+
+    return (
+        <div className="table-responsive">
+            <table className="table table-hover align-middle">
+                <thead><tr><th>Orden</th><th>Cliente</th><th>Estado</th><th>Total</th></tr></thead>
+                <tbody>
+                    {[...ordenes].sort((a, b) => b.id - a.id).map(orden => (
+                        <tr key={orden.id}><th scope="row">#{orden.id}</th>
+                            <td>#{orden.usuarioId}</td><td>{orden.estado}</td><td>${orden.total.toLocaleString('es-CL')}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+}

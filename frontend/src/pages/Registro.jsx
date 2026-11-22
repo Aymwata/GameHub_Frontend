@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { registrarUsuario, guardarSesion } from '../services/autenticacion.js';
+import { useSesion } from '../services/sesion.js';
 
-function Registro({ alIniciarSesion }) {
+function Registro() {
+    const { registrar } = useSesion();
     const [nombre, setNombre] = useState('');
     const [correo, setCorreo] = useState('');
+    const [telefono, setTelefono] = useState('');
     const [password, setPassword] = useState('');
     const [confirmarPassword, setConfirmarPassword] = useState('');
     const [error, setError] = useState('');
@@ -17,8 +19,11 @@ function Registro({ alIniciarSesion }) {
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim())) {
             return 'Ingresa un correo electrónico válido.';
         }
-        if (password.length < 6) {
-            return 'La contraseña debe tener al menos 6 caracteres.';
+        if (!/^\d{9}$/.test(telefono.trim())) {
+            return 'Ingresa un teléfono de 9 dígitos.';
+        }
+        if (password.trim().length < 8) {
+            return 'La contraseña debe tener al menos 8 caracteres.';
         }
         if (password !== confirmarPassword) {
             return 'Las contraseñas no coinciden.';
@@ -39,25 +44,10 @@ function Registro({ alIniciarSesion }) {
         setCargando(true);
 
         try {
-            const respuesta = await registrarUsuario({ nombre, correo, password });
-
-            if (respuesta && respuesta.token) {
-                const sesion = guardarSesion({
-                    token: respuesta.token,
-                    rol: respuesta.rol || 'CLIENTE',
-                    nombre: respuesta.nombre || nombre.trim(),
-                    correo: respuesta.correo || correo.trim()
-                });
-
-                if (typeof alIniciarSesion === 'function') {
-                    alIniciarSesion(sesion);
-                }
-                navegar('/');
-            } else {
-                navegar('/login?registrado=true');
-            }
+            await registrar({ nombre: nombre.trim(), email: correo.trim(), telefono: telefono.trim(), password });
+            navegar('/login?registrado=true', { replace: true });
         } catch (err) {
-            setError(err.message);
+            setError(err.status ? err.message : 'No pudimos completar el registro. Intenta nuevamente.');
         } finally {
             setCargando(false);
         }
@@ -90,6 +80,8 @@ function Registro({ alIniciarSesion }) {
                                     className="form-control"
                                     placeholder="Juan Pérez"
                                     value={nombre}
+                                    autoComplete="name"
+                                    maxLength={100}
                                     onChange={e => setNombre(e.target.value)}
                                     disabled={cargando}
                                     required
@@ -106,10 +98,19 @@ function Registro({ alIniciarSesion }) {
                                     className="form-control"
                                     placeholder="juan@correo.cl"
                                     value={correo}
+                                    autoComplete="email"
+                                    maxLength={100}
                                     onChange={e => setCorreo(e.target.value)}
                                     disabled={cargando}
                                     required
                                 />
+                            </div>
+
+                            <div className="mb-3">
+                                <label htmlFor="reg-telefono" className="form-label fw-bold">Teléfono</label>
+                                <input id="reg-telefono" type="tel" inputMode="numeric" autoComplete="tel-national"
+                                    className="form-control" maxLength={9} value={telefono}
+                                    onChange={e => setTelefono(e.target.value)} disabled={cargando} required />
                             </div>
 
                             <div className="mb-3">
@@ -120,8 +121,10 @@ function Registro({ alIniciarSesion }) {
                                     id="reg-password"
                                     type="password"
                                     className="form-control"
-                                    placeholder="Mínimo 6 caracteres"
+                                    placeholder="Mínimo 8 caracteres"
                                     value={password}
+                                    autoComplete="new-password"
+                                    maxLength={255}
                                     onChange={e => setPassword(e.target.value)}
                                     disabled={cargando}
                                     required
@@ -138,6 +141,8 @@ function Registro({ alIniciarSesion }) {
                                     className="form-control"
                                     placeholder="Repite tu contraseña"
                                     value={confirmarPassword}
+                                    autoComplete="new-password"
+                                    maxLength={255}
                                     onChange={e => setConfirmarPassword(e.target.value)}
                                     disabled={cargando}
                                     required

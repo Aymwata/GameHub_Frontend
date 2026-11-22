@@ -1,8 +1,10 @@
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import EstadoCatalogo from '../components/EstadoCatalogo.jsx';
+import ImagenProducto from '../components/ImagenProducto.jsx';
 
 // Busca el producto indicado en la dirección y muestra su información detallada.
-function Producto({ catalogo, agregarProducto }) {
+function Producto({ catalogo, agregarProducto, estado = 'listo', reintentar }) {
     const { id } = useParams();
 
     const [cantidad, setCantidad] = useState('1');
@@ -59,6 +61,10 @@ function Producto({ catalogo, agregarProducto }) {
         setCantidad(String(Math.min(numero, producto.stock)));
     }
 
+    if (estado !== 'listo') {
+        return <main><EstadoCatalogo estado={estado} reintentar={reintentar} /></main>;
+    }
+
     if (!producto) {
         return (
             <main>
@@ -80,11 +86,7 @@ function Producto({ catalogo, agregarProducto }) {
 
             <div className="row g-4 mt-2">
                 <div className="col-md-6">
-                    <img
-                        src={'/' + producto.imagen}
-                        alt={producto.nombre}
-                        className="detalle-imagen img-fluid rounded"
-                    />
+                    <ImagenProducto producto={producto} className="detalle-imagen img-fluid rounded" />
                 </div>
 
                 <div className="col-md-6">
@@ -95,7 +97,8 @@ function Producto({ catalogo, agregarProducto }) {
                         ${producto.precio.toLocaleString('es-CL')}
                     </p>
 
-                    <p className="mb-1">Categoría: <span className="text-capitalize">{producto.categoria}</span></p>
+                    {producto.nombreCategoria && <p className="mb-1">Categoría: {producto.nombreCategoria}</p>}
+                    {producto.modelo && <p className="mb-1">Modelo: {producto.modelo}</p>}
                     <p className="mb-2">Stock disponible: {producto.stock}</p>
 
                     {/* Badge / Indicador visual de stock */}
