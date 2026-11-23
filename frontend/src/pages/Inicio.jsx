@@ -17,6 +17,7 @@ const banners = [
 function Inicio({ productos = [], categorias = [], estado, reintentar }) {
     const destacados = productos
         .filter(producto => producto.stock > 0)
+        .sort((a, b) => Number(Boolean(b.imagen)) - Number(Boolean(a.imagen)))
         .slice(0, 4);
 
     // Inicia el carrusel al entrar a Inicio y lo detiene al salir.

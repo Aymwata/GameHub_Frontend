@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import EstadoCatalogo from '../components/EstadoCatalogo.jsx';
 import { useSesion } from '../services/sesion.js';
 
-const productoInicial = { nombre: '', marca: '', modelo: '', precio: '', categoriaId: '', descripcion: '' };
+const productoInicial = {
+    nombre: '', marca: '', modelo: '', precio: '', categoriaId: '', descripcion: '', imagen: '', especificaciones: '',
+};
 
 export default function Admin({ catalogo, categorias, estadoCatalogo, onCambio }) {
     const { solicitarConSesion } = useSesion();
@@ -30,6 +32,15 @@ export default function Admin({ catalogo, categorias, estadoCatalogo, onCambio }
 
     function crearProducto(evento) {
         evento.preventDefault();
+        const lineas = producto.especificaciones.split(/\r?\n/).map(linea => linea.trim()).filter(Boolean);
+        const pares = lineas.map(linea => {
+            const separador = linea.indexOf(':');
+            return separador < 0 ? ['', ''] : [linea.slice(0, separador).trim(), linea.slice(separador + 1).trim()];
+        });
+        if (pares.length > 40 || pares.some(([nombre, valor]) => !nombre || nombre.length > 80 || !valor || valor.length > 500)) {
+            setAviso({ tipo: 'danger', mensaje: 'Escribe hasta 40 especificaciones, una por línea, con el formato Nombre: valor.' });
+            return;
+        }
         guardar('/products', {
             nombre: producto.nombre.trim(),
             marca: producto.marca.trim(),
@@ -37,6 +48,8 @@ export default function Admin({ catalogo, categorias, estadoCatalogo, onCambio }
             descripcion: producto.descripcion.trim(),
             precio: Number(producto.precio),
             categoriaId: Number(producto.categoriaId),
+            imagen: producto.imagen.trim() || undefined,
+            especificaciones: pares.length ? Object.fromEntries(pares) : undefined,
         }, 'Producto agregado al catálogo.', () => setProducto(productoInicial));
     }
 
@@ -92,6 +105,20 @@ export default function Admin({ catalogo, categorias, estadoCatalogo, onCambio }
                                         <label className="form-label" htmlFor="producto-descripcion">Descripción</label>
                                         <textarea className="form-control" id="producto-descripcion" value={producto.descripcion}
                                             onChange={evento => setProducto({ ...producto, descripcion: evento.target.value })} />
+                                    </div>
+                                    <div className="col-12">
+                                        <label className="form-label" htmlFor="producto-imagen">Imagen</label>
+                                        <input className="form-control" id="producto-imagen" maxLength={600}
+                                            placeholder="/assets/images/mi-producto.jpg" value={producto.imagen}
+                                            onChange={evento => setProducto({ ...producto, imagen: evento.target.value })} />
+                                        <small className="form-text">Usa una ruta del proyecto o una URL de imagen.</small>
+                                    </div>
+                                    <div className="col-12">
+                                        <label className="form-label" htmlFor="producto-especificaciones">Especificaciones</label>
+                                        <textarea className="form-control" id="producto-especificaciones" rows={3}
+                                            placeholder="Memoria: 16 GB" value={producto.especificaciones}
+                                            onChange={evento => setProducto({ ...producto, especificaciones: evento.target.value })} />
+                                        <small className="form-text">Una por línea, con el formato Nombre: valor.</small>
                                     </div>
                                     <div className="col-12"><button className="btn btn-success">Agregar producto</button></div>
                                 </fieldset>

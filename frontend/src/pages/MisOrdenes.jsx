@@ -17,6 +17,8 @@ function estadoVisual(estado) {
 
 function TarjetaOrden({ orden, productos, usuario }) {
     const estado = estadoVisual(orden.estado);
+    const entrega = orden.datosCheckout;
+    const contacto = entrega ?? usuario;
     return (
         <article className="orden-card card border-0 shadow-sm rounded-4 overflow-hidden">
             <div className="card-header bg-white border-bottom py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -49,12 +51,23 @@ function TarjetaOrden({ orden, productos, usuario }) {
                     })}
                 </ul>
 
-                {usuario && (
+                {contacto && (
                     <div className="bg-light rounded-3 border p-3 mt-3 mb-2 small">
                         <h3 className="h6 fw-bold">Detalle del pedido</h3>
                         <div className="row g-2">
-                            <div className="col-md-6"><span className="text-muted">Nombre </span><strong>{usuario.nombre}</strong></div>
-                            <div className="col-md-6 text-break"><span className="text-muted">Correo </span><strong>{usuario.email}</strong></div>
+                            <div className="col-md-6"><span className="text-muted">Nombre </span><strong>{contacto.nombre}</strong></div>
+                            <div className="col-md-6 text-break"><span className="text-muted">Correo </span><strong>{contacto.email}</strong></div>
+                            {entrega && <>
+                                <div className="col-md-6"><span className="text-muted">Teléfono </span><strong>{entrega.telefono}</strong></div>
+                                <div className="col-md-6">
+                                    <span className="text-muted">Método elegido </span>
+                                    <strong>{entrega.metodoPago === 'TRANSFERENCIA' ? 'Transferencia' : 'Tarjeta'}</strong>
+                                </div>
+                                <div className="col-12">
+                                    <span className="text-muted">Dirección </span>
+                                    <strong>{entrega.direccion}, {entrega.comuna}, {entrega.region}</strong>
+                                </div>
+                            </>}
                         </div>
                     </div>
                 )}

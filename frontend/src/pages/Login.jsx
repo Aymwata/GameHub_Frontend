@@ -109,7 +109,7 @@ function Login({ perfil }) {
 
                         {!administrador && <p className="text-center mt-4 mb-0">
                             ¿No tienes cuenta?{' '}
-                            <Link to="/registro" className="fw-bold text-success">
+                            <Link to="/registro" state={ubicacion.state} className="fw-bold text-success">
                                 Regístrate aquí
                             </Link>
                         </p>}

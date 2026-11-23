@@ -12,11 +12,11 @@ export async function cargarCatalogo(signal) {
 
     return {
         categorias: categoriasActivas,
-        productos: productos.filter(producto => producto.estado).map(producto => ({
+        productos: productos.map(producto => ({
             ...producto,
             categoria: String(producto.categoria?.id ?? ''),
             nombreCategoria: categoriasPorId.get(producto.categoria?.id)?.nombre ?? '',
-            stock: stock.get(producto.id) ?? 0,
+            stock: producto.estado ? (stock.get(producto.id) ?? 0) : 0,
         })),
     };
 }

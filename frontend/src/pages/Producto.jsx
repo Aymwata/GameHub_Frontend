@@ -155,7 +155,7 @@ function Producto({ catalogo, agregarProducto, estado = 'listo', reintentar }) {
                     </div>
 
                     {/* Tabla de Especificaciones Técnicas */}
-                    {producto.especificaciones && (
+                    {Object.keys(producto.especificaciones ?? {}).length > 0 && (
                         <div className="mt-4">
                             <h3 className="h5 fw-bold">Especificaciones técnicas</h3>
                             <table className="table table-bordered table-striped mt-2">
