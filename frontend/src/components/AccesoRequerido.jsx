@@ -14,7 +14,14 @@ export default function AccesoRequerido({ rol, children }) {
         <main className="container py-4">
             <h1 className="h3">Acceso {rol === 'ADMIN' ? 'de administración' : 'de clientes'}</h1>
             {estado === 'cargando' && <p role="status">Comprobando tu sesión…</p>}
-            {estado === 'autenticado' && <p>Tu cuenta no tiene acceso a esta página.</p>}
+            {estado === 'autenticado' && (
+                <p>
+                    Tu cuenta no tiene acceso a esta página.{' '}
+                    <Link to={rol === 'ADMIN' ? '/admin/login' : '/login'} state={{ continuar: ubicacion.pathname }}>
+                        Entrar como {rol === 'ADMIN' ? 'administrador' : 'cliente'}
+                    </Link>
+                </p>
+            )}
             {estado === 'error' && (
                 <div role="alert">
                     <p>No pudimos comprobar tu sesión.</p>

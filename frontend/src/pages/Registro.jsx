@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSesion } from '../services/sesion.js';
 
 function Registro() {
@@ -13,6 +13,7 @@ function Registro() {
     const [cargando, setCargando] = useState(false);
 
     const navegar = useNavigate();
+    const ubicacion = useLocation();
 
     function validar() {
         if (!nombre.trim()) return 'El nombre es obligatorio.';
@@ -45,7 +46,7 @@ function Registro() {
 
         try {
             await registrar({ nombre: nombre.trim(), email: correo.trim(), telefono: telefono.trim(), password });
-            navegar('/login?registrado=true', { replace: true });
+            navegar('/login?registrado=true', { replace: true, state: ubicacion.state });
         } catch (err) {
             setError(err.status ? err.message : 'No pudimos completar el registro. Intenta nuevamente.');
         } finally {
@@ -160,7 +161,7 @@ function Registro() {
 
                         <p className="text-center mt-4 mb-0">
                             ¿Ya tienes cuenta?{' '}
-                            <Link to="/login" className="fw-bold text-success">
+                            <Link to="/login" state={ubicacion.state} className="fw-bold text-success">
                                 Inicia sesión
                             </Link>
                         </p>

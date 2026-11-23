@@ -5,7 +5,6 @@
     --color-primario: #14532D;
     --color-acento: #22C55E;
     --color-texto: #101418;
-    --color-error: #B42318;
 }
 
 /* Mantiene el pie al final de la pantalla. */
@@ -193,10 +192,6 @@ h1,
     .navegacion {
         justify-content: center;
         gap: 12px;
-    }
-
-    .presentacion h1 {
-        font-size: 2rem;
     }
 
     main {
@@ -488,30 +483,6 @@ h1,
   flex-direction: column;
   gap: 12px;
   margin-top: 24px;
-}
-
-/* Encierra el resumen del checkout en un panel blanco. */
-.resumen-checkout {
-  padding: 24px;
-  background: var(--color-superficie);
-  border: 1px solid #dce5df;
-  border-radius: 12px;
-  box-shadow: 0 3px 12px #0000000d;
-}
-
-.resumen-checkout h2 {
-  margin-bottom: 20px;
-  color: var(--color-primario);
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-.resumen-checkout ul {
-  padding-left: 20px;
-}
-
-.resumen-checkout li {
-  margin-bottom: 12px;
 }
 
 /* Separa el botón de regreso del contenido del producto. */

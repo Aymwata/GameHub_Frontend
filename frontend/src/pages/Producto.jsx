@@ -127,25 +127,6 @@ function Producto({ catalogo, agregarProducto, estado = 'listo', reintentar }) {
                         </p>
                     )}
 
-                    {/* Datos técnicos que describen el producto ofrecido. */}
-                    {Object.keys(producto.detallesTecnicos ?? {}).length > 0 && (
-                        <div className="mt-4">
-                            <h2 className="h5 fw-bold">Detalles técnicos</h2>
-                            <table className="table table-bordered table-striped mt-2">
-                                <tbody>
-                                    {Object.entries(producto.detallesTecnicos).map(([clave, valor]) => (
-                                        <tr key={clave}>
-                                            <td className="fw-bold w-33">
-                                                {clave === 'TamaÃ±o de pantalla' ? 'Tamaño de pantalla' : clave}
-                                            </td>
-                                            <td>{valor}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-
                     <div className="mt-4">
                         <label htmlFor="cantidad" className="form-label fw-bold">
                             Cantidad
@@ -173,6 +154,24 @@ function Producto({ catalogo, agregarProducto, estado = 'listo', reintentar }) {
                         </button>
                     </div>
 
+                    {/* Tabla de Especificaciones Técnicas */}
+                    {Object.keys(producto.especificaciones ?? {}).length > 0 && (
+                        <div className="mt-4">
+                            <h3 className="h5 fw-bold">Especificaciones técnicas</h3>
+                            <table className="table table-bordered table-striped mt-2">
+                                <tbody>
+                                    {Object.entries(producto.especificaciones).map(([clave, valor]) => (
+                                        <tr key={clave}>
+                                            <td className="fw-bold text-capitalize w-33">
+                                                {clave.replace(/([A-Z])/g, ' $1')}:
+                                            </td>
+                                            <td>{valor}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             </div>
         </main>

@@ -30,6 +30,8 @@ describe('Mis órdenes', () => {
         renderizar([{
             id: 1, estado: 'PENDIENTE', subtotal: 22000, descuento: 2000, total: 20000,
             detalles: [{ id: 10, productoId: 2, cantidad: 2, precioUnitario: 11000 }],
+            datosCheckout: { nombre: 'Cliente Demo', email: 'cliente@demo.example', telefono: '912345678',
+                region: 'Metropolitana', comuna: 'Santiago', direccion: 'Calle Demo 100', metodoPago: 'TRANSFERENCIA' },
         }]);
         const titulo = await screen.findByRole('heading', { name: 'Orden #1' });
         expect(titulo.closest('article')).toHaveClass('orden-card', 'rounded-4', 'shadow-sm');
@@ -37,5 +39,7 @@ describe('Mis órdenes', () => {
         expect(screen.getByText(/Teclado mecánico × 2/)).toBeInTheDocument();
         expect(screen.getByText('$20.000')).toBeInTheDocument();
         expect(screen.getByText('cliente@demo.example')).toBeInTheDocument();
+        expect(screen.getByText('Calle Demo 100, Santiago, Metropolitana')).toBeInTheDocument();
+        expect(screen.getByText('Transferencia')).toBeInTheDocument();
     });
 });
