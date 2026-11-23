@@ -1,38 +1,23 @@
-// Recupera la compra y conserva los datos de versiones anteriores.
+const CLAVE_CARRITO = 'gamehub-carrito-api';
+
 export function leerCompra() {
-    const vacia = { carrito: [], ordenes: [], cupon: '' };
-
     try {
-        const texto = localStorage.getItem('gamehub-carrito');
-        const guardado = JSON.parse(texto);
-
-        if (Array.isArray(guardado)) {
-            return { carrito: guardado, ordenes: [], cupon: '' };
+        const guardado = JSON.parse(localStorage.getItem(CLAVE_CARRITO));
+        if (Array.isArray(guardado?.carrito)) {
+            const carrito = guardado.carrito.filter(linea =>
+                Number.isSafeInteger(linea?.id) && linea.id > 0 &&
+                Number.isSafeInteger(linea.cantidad) && linea.cantidad > 0);
+            return { carrito, cupon: typeof guardado.cupon === 'string' ? guardado.cupon : '' };
         }
-
-        if (
-            guardado &&
-            Array.isArray(guardado.carrito) &&
-            Array.isArray(guardado.ordenes)
-        ) {
-            return {
-                carrito: guardado.carrito,
-                ordenes: guardado.ordenes,
-                cupon: guardado.cupon || ''
-            };
-        }
-
-        return vacia;
     } catch {
-        return vacia;
+        // El carrito sigue disponible en memoria si el navegador bloquea el almacenamiento.
     }
+    return { carrito: [], cupon: '' };
 }
 
-// Guarda todos los datos de la compra en una sola operación.
-export function guardarCompra(carrito, ordenes, cupon) {
+export function guardarCompra(compra) {
     try {
-        const compra = { carrito, ordenes, cupon };
-        localStorage.setItem('gamehub-carrito', JSON.stringify(compra));
+        localStorage.setItem(CLAVE_CARRITO, JSON.stringify(compra));
         return true;
     } catch {
         return false;

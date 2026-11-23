@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom/vitest';
@@ -15,24 +14,20 @@ vi.mock('bootstrap', () => ({
 }));
 
 //Prueba 2
-vi.mock('../data/productos.js', () => ({
-  productos: [
+const productos = [
     { id: 1, nombre: 'Producto Destacado 1', stock: 5 },
     { id: 2, nombre: 'Producto Destacado 2', stock: 3 },
     { id: 3, nombre: 'Producto Sin Stock', stock: 0 }, // No debe renderizarse
     { id: 4, nombre: 'Producto Destacado 3', stock: 10 },
     { id: 5, nombre: 'Producto Destacado 4', stock: 2 },
     { id: 6, nombre: 'Producto Destacado Excedente', stock: 1 } // Supera el límite de 4
-  ]
-}));
+];
 
 //Prueba 3
-vi.mock('../data/categorias.js', () => ({
-  categorias: [
+const categorias = [
     { id: 'monitores', nombre: 'Monitores', descripcion: 'Pantallas de alta frecuencia' },
     { id: 'perifericos', nombre: 'Periféricos', descripcion: 'Teclados y mouse' }
-  ]
-}));
+];
 
 //Prueba 4
 vi.mock('../components/TarjetaProducto.jsx', () => ({
@@ -53,7 +48,7 @@ describe('Interfaz de Usuario - Componente Inicio', () => {
   const renderizarInicio = () =>
     render(
       <MemoryRouter>
-        <Inicio />
+        <Inicio productos={productos} categorias={categorias} />
       </MemoryRouter>
     );
 

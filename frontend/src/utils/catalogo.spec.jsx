@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import React from 'react';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom/vitest';
@@ -15,12 +14,10 @@ vi.mock('../components/TarjetaProducto.jsx', () => ({
 }));
 
 
-vi.mock('../data/categorias.js', () => ({
-  categorias: [
-    { id: 'monitores', nombre: 'Monitores' },
-    { id: 'laptops', nombre: 'Laptops' }
-  ]
-}));
+const categorias = [
+  { id: 'monitores', nombre: 'Monitores' },
+  { id: 'laptops', nombre: 'Laptops' }
+];
 
 // Datos mock para pruebas de renderizado
 const mockCatalogo = [
@@ -40,7 +37,7 @@ describe('Interfaz de Usuario - Componente Catalogo', () => {
   const renderizar = () =>
     render(
       <MemoryRouter initialEntries={['/catalogo']}>
-        <Catalogo catalogo={mockCatalogo} />
+        <Catalogo catalogo={mockCatalogo} categorias={categorias} />
       </MemoryRouter>
     );
 

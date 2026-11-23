@@ -1,63 +1,41 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
+import { MemoryRouter } from 'react-router-dom';
+import MisOrdenes from '../pages/MisOrdenes.jsx';
 
-import MisOrdenes from '../pages/MisOrdenes';
+afterEach(cleanup);
 
-// Datos de prueba para simular el historial de compras
-const mockOrdenes = [
-  {
-    id: 'ORD-001',
-    fecha: '2026-03-15T10:00:00Z',
-    estado: 'Completado',
-    productos: [
-      { id: 101, nombre: 'Teclado Mecánico', cantidad: 1 }
-    ],
-    despacho: {
-      direccion: 'Av. Libertad 456',
-      comuna: 'Viña del Mar',
-      region: 'Valparaíso'
-    },
-    descuento: 5000,
-    total: 45000
-  }
-];
-
-describe('Interfaz de Usuario - Componente MisOrdenes', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    cleanup(); // Limpia el DOM simulado tras cada prueba
-  });
-
-  const renderizarMisOrdenes = (ordenesDatos = mockOrdenes) => {
-    return render(
-      <MemoryRouter>
-        <MisOrdenes ordenes={ordenesDatos} />
-      </MemoryRouter>
+function renderizar(ordenes) {
+    const solicitarConSesion = vi.fn().mockResolvedValue(ordenes);
+    const productos = new Map([[2, { nombre: 'Teclado mecánico' }]]);
+    render(
+        <MemoryRouter>
+            <MisOrdenes productos={productos} usuario={{ nombre: 'Cliente Demo', email: 'cliente@demo.example' }}
+                solicitarConSesion={solicitarConSesion} />
+        </MemoryRouter>,
     );
-  };
+    return solicitarConSesion;
+}
 
-  it('Debería mostrar un mensaje y enlace al catálogo si no hay órdenes guardadas', () => {
-    renderizarMisOrdenes([]);
+describe('Mis órdenes', () => {
+    it('consulta Spring y muestra el estado vacío', async () => {
+        const solicitarConSesion = renderizar([]);
+        expect(await screen.findByText('Todavía no tienes órdenes.', { exact: false })).toBeInTheDocument();
+        expect(solicitarConSesion).toHaveBeenCalledWith('/orders/me', expect.objectContaining({ signal: expect.anything() }));
+    });
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Mis órdenes' })).toBeInTheDocument();
-    expect(screen.getByText(/Todavía no tienes órdenes/i)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Explorar catálogo/i })).toBeInTheDocument();
-  });
-
-  it('Debería renderizar correctamente la lista de órdenes con su información y detalles', () => {
-    renderizarMisOrdenes();
-
-    expect(screen.getByRole('heading', { level: 2, name: 'ORD-001' })).toBeInTheDocument();
-    expect(screen.getByText(/Estado: Completado/i)).toBeInTheDocument();
-    expect(screen.getByText(/Teclado Mecánico × 1/i)).toBeInTheDocument();
-    expect(screen.getByText(/Av\. Libertad 456, Viña del Mar, Valparaíso/i)).toBeInTheDocument();
-    expect(screen.getByText(/Total: \$45\.000/i)).toBeInTheDocument();
-  });
+    it('muestra el estado, el total y el precio histórico del pedido', async () => {
+        renderizar([{
+            id: 1, estado: 'PENDIENTE', subtotal: 22000, descuento: 2000, total: 20000,
+            detalles: [{ id: 10, productoId: 2, cantidad: 2, precioUnitario: 11000 }],
+        }]);
+        const titulo = await screen.findByRole('heading', { name: 'Orden #1' });
+        expect(titulo.closest('article')).toHaveClass('orden-card', 'rounded-4', 'shadow-sm');
+        expect(screen.getByText(/Pendiente de pago/)).toBeInTheDocument();
+        expect(screen.getByText(/Teclado mecánico × 2/)).toBeInTheDocument();
+        expect(screen.getByText('$20.000')).toBeInTheDocument();
+        expect(screen.getByText('cliente@demo.example')).toBeInTheDocument();
+    });
 });
