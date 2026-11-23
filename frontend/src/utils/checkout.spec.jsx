@@ -24,7 +24,7 @@ function renderizar(props) {
 function completarEntrega() {
     for (const [etiqueta, value] of [
         ['Teléfono de 9 dígitos', '912345678'], ['Región', 'Metropolitana'],
-        ['Comuna', 'Santiago'], ['Dirección', 'Calle Demo 100'],
+        ['Ciudad', 'Santiago'], ['Comuna', 'Providencia'], ['Calle', 'Calle Demo'], ['Número', '100'],
     ]) {
         fireEvent.change(screen.getByLabelText(etiqueta), { target: { value } });
     }
@@ -51,7 +51,7 @@ describe('Confirmación del pedido', () => {
         expect(finalizarCompra).toHaveBeenCalledTimes(1);
         expect(finalizarCompra).toHaveBeenCalledWith({
             ...usuario, telefono: '912345678', region: 'Metropolitana',
-            comuna: 'Santiago', direccion: 'Calle Demo 100', metodoPago: 'TRANSFERENCIA',
+            ciudad: 'Santiago', comuna: 'Providencia', calle: 'Calle Demo', numero: '100', metodoPago: 'TRANSFERENCIA',
         });
     });
 
@@ -63,6 +63,6 @@ describe('Confirmación del pedido', () => {
         fireEvent.click(screen.getByRole('button', { name: 'Crear pedido' }));
         expect(await screen.findByRole('alert')).toHaveTextContent(error.message);
         expect(screen.getByRole('button', { name: 'Crear pedido' })).toBeEnabled();
-        expect(screen.getByLabelText('Dirección')).toHaveValue('Calle Demo 100');
+        expect(screen.getByLabelText('Calle')).toHaveValue('Calle Demo');
     });
 });

@@ -7,19 +7,32 @@ const productoInicial = {
     nombre: '', marca: '', modelo: '', precio: '', categoriaId: '', descripcion: '', imagen: '', especificaciones: '',
 };
 
+function leerEspecificaciones(texto) {
+    const lineas = texto.split(/\r?\n/).map(linea => linea.trim()).filter(Boolean);
+    const pares = lineas.map(linea => {
+        const separador = linea.indexOf(':');
+        return separador < 0 ? ['', ''] : [linea.slice(0, separador).trim(), linea.slice(separador + 1).trim()];
+    });
+    if (pares.length > 40 || pares.some(([nombre, valor]) => !nombre || nombre.length > 80 || !valor || valor.length > 500)) {
+        return null;
+    }
+    return Object.fromEntries(pares);
+}
+
 export default function Admin({ catalogo, categorias, estadoCatalogo, onCambio }) {
     const { solicitarConSesion } = useSesion();
     const [vista, setVista] = useState('productos');
     const [producto, setProducto] = useState(productoInicial);
+    const [edicion, setEdicion] = useState(null);
     const [registroStock, setRegistroStock] = useState({ productId: '', quantity: '', location: '' });
     const [aviso, setAviso] = useState(null);
     const [guardando, setGuardando] = useState(false);
 
-    async function guardar(ruta, body, mensaje, limpiar) {
+    async function guardar(ruta, body, mensaje, limpiar, method = 'POST') {
         setGuardando(true);
         setAviso(null);
         try {
-            await solicitarConSesion(ruta, { method: 'POST', body });
+            await solicitarConSesion(ruta, { method, body });
             limpiar();
             onCambio();
             setAviso({ tipo: 'success', mensaje });
@@ -30,17 +43,18 @@ export default function Admin({ catalogo, categorias, estadoCatalogo, onCambio }
         }
     }
 
+    function validarEspecificaciones(texto) {
+        const especificaciones = leerEspecificaciones(texto);
+        if (!especificaciones) {
+            setAviso({ tipo: 'danger', mensaje: 'Escribe hasta 40 especificaciones, una por línea, con el formato Nombre: valor.' });
+        }
+        return especificaciones;
+    }
+
     function crearProducto(evento) {
         evento.preventDefault();
-        const lineas = producto.especificaciones.split(/\r?\n/).map(linea => linea.trim()).filter(Boolean);
-        const pares = lineas.map(linea => {
-            const separador = linea.indexOf(':');
-            return separador < 0 ? ['', ''] : [linea.slice(0, separador).trim(), linea.slice(separador + 1).trim()];
-        });
-        if (pares.length > 40 || pares.some(([nombre, valor]) => !nombre || nombre.length > 80 || !valor || valor.length > 500)) {
-            setAviso({ tipo: 'danger', mensaje: 'Escribe hasta 40 especificaciones, una por línea, con el formato Nombre: valor.' });
-            return;
-        }
+        const especificaciones = validarEspecificaciones(producto.especificaciones);
+        if (!especificaciones) return;
         guardar('/products', {
             nombre: producto.nombre.trim(),
             marca: producto.marca.trim(),
@@ -49,8 +63,16 @@ export default function Admin({ catalogo, categorias, estadoCatalogo, onCambio }
             precio: Number(producto.precio),
             categoriaId: Number(producto.categoriaId),
             imagen: producto.imagen.trim() || undefined,
-            especificaciones: pares.length ? Object.fromEntries(pares) : undefined,
+            especificaciones,
         }, 'Producto agregado al catálogo.', () => setProducto(productoInicial));
+    }
+
+    function guardarEdicion(evento) {
+        evento.preventDefault();
+        const especificaciones = validarEspecificaciones(edicion.texto);
+        if (!especificaciones) return;
+        guardar('/products/' + edicion.id + '/detalles-tecnicos', { especificaciones },
+            'Especificaciones actualizadas.', () => setEdicion(null), 'PUT');
     }
 
     function ingresarStock(evento) {
@@ -151,9 +173,27 @@ export default function Admin({ catalogo, categorias, estadoCatalogo, onCambio }
                     {estadoCatalogo.estado === 'listo' && catalogo.length === 0 && <p>Todavía no hay productos.</p>}
                     <ul className="list-group">
                         {catalogo.map(item => (
-                            <li className="list-group-item d-flex flex-wrap justify-content-between gap-2" key={item.id}>
-                                <Link to={'/producto/' + item.id}>{item.nombre}</Link>
-                                <span>{item.stock} unidades · ${item.precio.toLocaleString('es-CL')}</span>
+                            <li className="list-group-item" key={item.id}>
+                                <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                    <Link to={'/producto/' + item.id}>{item.nombre}</Link>
+                                    <span>{item.stock} unidades · ${item.precio.toLocaleString('es-CL')}</span>
+                                    <button type="button" className="btn btn-outline-success btn-sm" disabled={guardando}
+                                        onClick={() => setEdicion({
+                                            id: item.id,
+                                            texto: Object.entries(item.especificaciones ?? {}).map(([clave, valor]) => clave + ': ' + valor).join('\n'),
+                                        })}>Editar especificaciones</button>
+                                </div>
+                                {edicion?.id === item.id && (
+                                    <form className="mt-3" onSubmit={guardarEdicion}>
+                                        <label className="form-label" htmlFor="editar-especificaciones">Especificaciones de {item.nombre}</label>
+                                        <textarea id="editar-especificaciones" className="form-control mb-2" rows={4}
+                                            value={edicion.texto} disabled={guardando}
+                                            onChange={evento => setEdicion({ ...edicion, texto: evento.target.value })} />
+                                        <button className="btn btn-success me-2" disabled={guardando}>Guardar especificaciones</button>
+                                        <button className="btn btn-outline-secondary" type="button" disabled={guardando}
+                                            onClick={() => setEdicion(null)}>Cancelar</button>
+                                    </form>
+                                )}
                             </li>
                         ))}
                     </ul>

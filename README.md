@@ -24,9 +24,9 @@ Los clientes entran por `/login` o se registran en `/registro`. Los administrado
 - `usuario` y `estado` exponen la sesión actual. El proveedor restaura la sesión con la cookie del backend y mantiene el JWT de acceso en memoria.
 - El cliente puede volver a `/ordenes` o `/checkout` después de iniciar sesión. El administrador puede crear productos, ingresar stock y consultar órdenes en `/admin`, y gestionar categorías en `/admin/categorias`.
 
-El catálogo viene de Spring e incluye las imágenes y especificaciones de los productos de prueba. El carrito almacena IDs, cantidades y el código del cupón en el navegador. Spring valida el stock y el cupón, calcula el total definitivo y guarda los datos de entrega y el método de pago preferido con la orden. El pedido queda pendiente de pago. Mis órdenes muestra estos datos al cliente autenticado.
+El catálogo viene de Spring e incluye las imágenes y especificaciones de los productos de prueba. El carrito almacena IDs, cantidades y el código del cupón en el navegador. El checkout muestra las imágenes de los productos y solicita la dirección separada en región, ciudad, comuna, calle y número. Spring valida el stock y el cupón, calcula el total definitivo y guarda la entrega y el método de pago preferido con la orden. **Mis órdenes** muestra estos datos al cliente.
 
-En `/admin`, abre **Productos**. En **Nuevo producto**, la imagen puede ser una URL o un archivo que hayas agregado a `frontend/public/assets/images`, por ejemplo `/assets/images/mi-producto.jpg`. Escribe las especificaciones en líneas como `Memoria: 16 GB`. Después de guardar el producto, usa **Ingresar stock** para dejarlo disponible para comprar.
+En `/admin`, abre **Productos**. En **Nuevo producto**, la imagen puede ser una URL o un archivo que hayas agregado a `frontend/public/assets/images`, por ejemplo `/assets/images/mi-producto.jpg`. Escribe las especificaciones en líneas como `Memoria: 16 GB`. Después de guardar el producto, usa **Ingresar stock** para dejarlo disponible para comprar. Desde **Catálogo actual**, usa **Editar especificaciones** para cambiar la ficha de un producto existente.
 
 ## Verificación
 

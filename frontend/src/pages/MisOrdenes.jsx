@@ -19,6 +19,9 @@ function TarjetaOrden({ orden, productos, usuario }) {
     const estado = estadoVisual(orden.estado);
     const entrega = orden.datosCheckout;
     const contacto = entrega ?? usuario;
+    const direccion = entrega
+        ? [...new Set([entrega.direccion, entrega.comuna, entrega.ciudad, entrega.region].filter(Boolean))].join(', ')
+        : '';
     return (
         <article className="orden-card card border-0 shadow-sm rounded-4 overflow-hidden">
             <div className="card-header bg-white border-bottom py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -65,7 +68,7 @@ function TarjetaOrden({ orden, productos, usuario }) {
                                 </div>
                                 <div className="col-12">
                                     <span className="text-muted">Dirección </span>
-                                    <strong>{entrega.direccion}, {entrega.comuna}, {entrega.region}</strong>
+                                    <strong>{direccion}</strong>
                                 </div>
                             </>}
                         </div>

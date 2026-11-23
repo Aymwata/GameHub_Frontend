@@ -33,3 +33,23 @@ it('envía la imagen y las especificaciones al crear un producto', async () => {
         },
     }));
 });
+
+it('edita las especificaciones de un producto existente', async () => {
+    solicitarConSesion.mockResolvedValue({ id: 21 });
+    const onCambio = vi.fn();
+    render(
+        <MemoryRouter>
+            <Admin catalogo={[{ id: 21, nombre: 'Memoria Gamer', precio: 14990, stock: 2, especificaciones: { Memoria: '16 GB' } }]}
+                categorias={[]} estadoCatalogo={{ estado: 'listo' }} onCambio={onCambio} />
+        </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Editar especificaciones' }));
+    const campo = screen.getByLabelText('Especificaciones de Memoria Gamer');
+    expect(campo.value).toBe('Memoria: 16 GB');
+    fireEvent.change(campo, { target: { value: 'Memoria: 32 GB' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar especificaciones' }));
+    await waitFor(() => expect(onCambio).toHaveBeenCalled());
+    expect(solicitarConSesion).toHaveBeenCalledWith('/products/21/detalles-tecnicos', {
+        method: 'PUT', body: { especificaciones: { Memoria: '32 GB' } },
+    });
+});

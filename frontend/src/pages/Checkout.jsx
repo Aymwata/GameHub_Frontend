@@ -1,15 +1,18 @@
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import ImagenProducto from '../components/ImagenProducto.jsx';
 import ResumenCompra from '../components/ResumenCompra.jsx';
 import { calcularResumen } from '../utils/precios.js';
 
 const camposEntrega = [
     { campo: 'nombre', etiqueta: 'Nombre completo', autoComplete: 'name' },
     { campo: 'email', etiqueta: 'Correo electrónico', autoComplete: 'email', type: 'email' },
-    { campo: 'telefono', etiqueta: 'Teléfono de 9 dígitos', autoComplete: 'tel-national', type: 'tel', maxLength: 9, pattern: '[0-9]{9}' },
+    { campo: 'telefono', etiqueta: 'Teléfono de 9 dígitos', autoComplete: 'tel-national', type: 'tel', inputMode: 'numeric', maxLength: 9, pattern: '[0-9]{9}' },
     { campo: 'region', etiqueta: 'Región', autoComplete: 'address-level1' },
-    { campo: 'comuna', etiqueta: 'Comuna', autoComplete: 'address-level2' },
-    { campo: 'direccion', etiqueta: 'Dirección', autoComplete: 'street-address', maxLength: 200 },
+    { campo: 'ciudad', etiqueta: 'Ciudad', autoComplete: 'address-level2' },
+    { campo: 'comuna', etiqueta: 'Comuna', autoComplete: 'address-level3' },
+    { campo: 'calle', etiqueta: 'Calle', autoComplete: 'address-line1', maxLength: 150 },
+    { campo: 'numero', etiqueta: 'Número', maxLength: 20 },
 ];
 
 export default function Checkout({ carrito, codigoCupon, usuario, carritoValido = true, finalizarCompra }) {
@@ -19,7 +22,7 @@ export default function Checkout({ carrito, codigoCupon, usuario, carritoValido 
     const [error, setError] = useState('');
     const [datos, setDatos] = useState(() => ({
         nombre: usuario?.nombre ?? '', email: usuario?.email ?? '', telefono: '',
-        region: '', comuna: '', direccion: '', metodoPago: 'TARJETA',
+        region: '', ciudad: '', comuna: '', calle: '', numero: '', metodoPago: 'TARJETA',
     }));
 
     async function confirmar(evento) {
@@ -56,11 +59,11 @@ export default function Checkout({ carrito, codigoCupon, usuario, carritoValido 
                             <h2 className="h4">Datos de entrega</h2>
                             <div className="row g-3">
                                 {camposEntrega.map(({ campo, etiqueta, maxLength = 100, ...atributos }) => (
-                                    <div key={campo} className={campo === 'direccion' ? 'col-12' : 'col-md-6'}>
+                                    <div key={campo} className="col-md-6">
                                         <label className="form-label" htmlFor={'checkout-' + campo}>{etiqueta}</label>
                                         <input {...atributos} className="form-control" id={'checkout-' + campo}
                                             value={datos[campo]} maxLength={maxLength} disabled={enviando} required
-                                            onChange={evento => setDatos({ ...datos, [campo]: evento.target.value })} />
+                                            onChange={evento => setDatos(actual => ({ ...actual, [campo]: evento.target.value }))} />
                                     </div>
                                 ))}
                                 <div className="col-12">
@@ -85,7 +88,17 @@ export default function Checkout({ carrito, codigoCupon, usuario, carritoValido 
                     <section className="col-lg-4">
                         <div className="card border-0 shadow-sm rounded-4 p-4">
                             <h2 className="h4">Resumen</h2>
-                            <ul>{carrito.map(item => <li key={item.id}>{item.nombre} × {item.cantidad}</li>)}</ul>
+                            <ul className="list-unstyled d-grid gap-3">
+                                {carrito.map(item => (
+                                    <li key={item.id} className="d-flex align-items-center gap-3">
+                                        <ImagenProducto producto={item} className="orden-item-imagen rounded-3 border bg-light" />
+                                        <div>
+                                            <div className="fw-semibold">{item.nombre}</div>
+                                            <small>{item.cantidad} × ${item.precio.toLocaleString('es-CL')}</small>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
                             <ResumenCompra resumen={calcularResumen(carrito)} estimado />
                         </div>
                     </section>
