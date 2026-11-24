@@ -26,7 +26,8 @@ function App() {
     const [catalogo, setCatalogo] = useState({ productos: [], categorias: [], estado: 'cargando' });
     const [revision, setRevision] = useState(0);
     const [mensaje, setMensaje] = useState('');
-    const { productos, categorias, estado } = catalogo;
+    const { productos: todosProductos, categorias, estado } = catalogo;
+    const productos = todosProductos.filter(producto => producto.estado);
 
     useEffect(() => {
         const peticion = new AbortController();
@@ -47,7 +48,7 @@ function App() {
         recargarCatalogo();
     }
 
-    const productosPorId = new Map(productos.map(producto => [producto.id, producto]));
+    const productosPorId = new Map(todosProductos.map(producto => [producto.id, producto]));
     const carrito = compra.carrito.map(({ id, cantidad }) => ({
         ...(productosPorId.get(id) ?? { id, nombre: 'Producto #' + id, stock: 0, precio: 0 }),
         cantidad,
@@ -91,7 +92,7 @@ function App() {
         return true;
     }
 
-    async function finalizarCompra() {
+    async function finalizarCompra(datosCheckout) {
         if (enviandoPedido.current) throw Object.assign(new Error('Ya hay un pedido en curso.'), { status: 409 });
         enviandoPedido.current = true;
         const pedido = compraActual.current;
@@ -101,6 +102,7 @@ function App() {
                 method: 'POST',
                 body: {
                     codigoPromocion: pedido.cupon || undefined,
+                    datosCheckout,
                     detalles: pedido.carrito.map(({ id, cantidad }) => ({ productoId: id, cantidad })),
                 },
             });
@@ -140,7 +142,7 @@ function App() {
                 <Route path="/checkout" element={
                     <AccesoRequerido rol="CLIENTE">
                         {esperarCatalogo ? <main><EstadoCatalogo {...estadoCatalogo} /></main> : (
-                            <Checkout carrito={carrito} codigoCupon={compra.cupon}
+                            <Checkout carrito={carrito} codigoCupon={compra.cupon} usuario={usuario}
                                 carritoValido={carritoValido} finalizarCompra={finalizarCompra} />
                         )}
                     </AccesoRequerido>
